@@ -1,0 +1,5 @@
+local.properties
+.idea/
+.gradle/
+app/build/
+php_api/config.php
