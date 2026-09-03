@@ -1,5 +1,25 @@
-local.properties
+# Android Studio
 .idea/
+*.iml
+
+# Gradle
 .gradle/
-app/build/
+build/
+**/build/
+
+# Local configuration
+local.properties
+
+# APK files
+*.apk
+*.aab
+
+# PHP secrets
 php_api/config.php
+
+# PHP temporary/test files
+php_api/*.log
+
+# OS files
+.DS_Store
+Thumbs.db
