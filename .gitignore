@@ -10,6 +10,24 @@ build/
 # Environment secrets
 .env
 .env.*
+!.env.example
 
 # Android Studio local settings
 .idea/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Python environment files
+.python-version
+
+# Test and tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
