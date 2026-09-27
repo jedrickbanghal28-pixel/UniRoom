@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F7F7F7">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="25dp"
+        android:background="#85180F">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="UniRoom"
+            android:textColor="#FFFFFF"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/welcomeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome!"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Faculty Dashboard"
+            android:textColor="#E8D8D5"
+            android:textSize="14sp"
+            android:layout_marginTop="3dp" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Next Class"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#252B3A" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginTop="10dp"
+                android:background="#85180F">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ITE 083"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5:00 PM • TH311"
+                    android:textSize="15sp"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Assigned Classroom"
+                    android:textSize="13sp"
+                    android:textColor="#E8D8D5"
+                    android:layout_marginTop="4dp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Faculty Tools"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#252B3A"
+                android:layout_marginTop="25dp"
+                android:layout_marginBottom="10dp" />
+
+            <Button
+                android:id="@+id/scheduleButton"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="My Schedule"
+                android:textSize="15sp"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#85180F"
+                android:layout_marginBottom="10dp" />
+
+            <Button
+                android:id="@+id/roomButton"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="My Assigned Rooms"
+                android:textSize="15sp"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#85180F"
+                android:layout_marginBottom="10dp" />
+
+            <Button
+                android:id="@+id/notificationButton"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="Send Student Notification"
+                android:textSize="15sp"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#85180F"
+                android:layout_marginBottom="10dp" />
+
+            <Button
+                android:id="@+id/profileButton"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="My Profile"
+                android:textSize="15sp"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#85180F"
+                android:layout_marginBottom="10dp" />
+
+            <Button
+                android:id="@+id/logoutButton"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="Log Out"
+                android:textSize="14sp"
+                android:backgroundTint="#777777" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

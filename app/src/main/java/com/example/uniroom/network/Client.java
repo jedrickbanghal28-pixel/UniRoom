@@ -12,8 +12,10 @@ public class Client {
         if (r == null) {
 
             r = new Retrofit.Builder()
-                    .baseUrl("http://10.0.2.2/php_api/")
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .baseUrl("http://192.168.254.117/php_api/")
+                    .addConverterFactory(
+                            GsonConverterFactory.create()
+                    )
                     .build();
         }
 

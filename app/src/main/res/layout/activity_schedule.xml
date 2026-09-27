@@ -1,1 +1,196 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/bg"><TextView android:layout_width="match_parent" android:layout_height="75dp" android:gravity="center_vertical" android:padding="18dp" android:text="My Schedule" android:textSize="27sp" android:textStyle="bold" android:textColor="@color/primary"/><ScrollView android:layout_width="match_parent" android:layout_height="match_parent"><LinearLayout android:id="@+id/list" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="14dp"/></ScrollView></LinearLayout>
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg">
+
+    <!-- HEADER -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="18dp"
+        android:background="@color/surface">
+
+        <TextView
+            android:id="@+id/schoolYearText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="School Year 2026–2027"
+            android:textSize="13sp"
+            android:textColor="#8A95A8"
+            android:gravity="center"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Schedule"
+            android:textSize="27sp"
+            android:textStyle="bold"
+            android:textColor="@color/text"
+            android:gravity="center"
+            android:layout_marginTop="5dp"/>
+
+        <TextView
+            android:id="@+id/monthText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="August"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary"
+            android:gravity="center"
+            android:layout_marginTop="8dp"/>
+
+    </LinearLayout>
+
+
+    <!-- DATE NAVIGATION -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:orientation="horizontal"
+        android:background="@color/primary"
+        android:gravity="center_vertical">
+
+        <Button
+            android:id="@+id/previousWeekButton"
+            android:layout_width="50dp"
+            android:layout_height="60dp"
+            android:text="‹"
+            android:textSize="28sp"
+            android:textColor="@color/surface"
+            android:backgroundTint="@color/primary"/>
+
+
+        <HorizontalScrollView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/dateContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center"/>
+
+        </HorizontalScrollView>
+
+
+        <Button
+            android:id="@+id/nextWeekButton"
+            android:layout_width="50dp"
+            android:layout_height="60dp"
+            android:text="›"
+            android:textSize="28sp"
+            android:textColor="@color/surface"
+            android:backgroundTint="@color/primary"/>
+
+    </LinearLayout>
+
+
+    <!-- SELECTED DATE -->
+
+    <TextView
+        android:id="@+id/selectedDateText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Monday, 24 August 2026"
+        android:textSize="21sp"
+        android:textStyle="bold"
+        android:textColor="@color/text"
+        android:paddingLeft="25dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="15dp"/>
+
+
+    <!-- SCHEDULE LIST -->
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/scheduleContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:paddingBottom="20dp"/>
+
+    </ScrollView>
+
+
+    <!-- BOTTOM NAVIGATION -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:orientation="horizontal"
+        android:background="@color/surface"
+        android:elevation="8dp">
+
+        <!-- HOME -->
+
+        <TextView
+            android:id="@+id/homeButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="⌂\nHome"
+            android:textSize="13sp"
+            android:textColor="@color/muted"
+            android:gravity="center"/>
+
+
+        <!-- SCHEDULE -->
+
+        <TextView
+            android:id="@+id/scheduleButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="▣\nSchedule"
+            android:textSize="13sp"
+            android:textColor="@color/primary"
+            android:gravity="center"/>
+
+
+        <!-- FIND ROOM -->
+
+        <TextView
+            android:id="@+id/findRoomButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="⌖\nFind Room"
+            android:textSize="13sp"
+            android:textColor="@color/muted"
+            android:gravity="center"/>
+
+
+        <!-- PROFILE -->
+
+        <TextView
+            android:id="@+id/profileButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="♙\nProfile"
+            android:textSize="13sp"
+            android:textColor="@color/muted"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+</LinearLayout>

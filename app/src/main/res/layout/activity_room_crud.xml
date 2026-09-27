@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F7F7F7">
+
+    <!-- Header -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="18dp"
+        android:background="#85180F">
+
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="55dp"
+            android:layout_height="50dp"
+            android:text="←"
+            android:textSize="25sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#85180F"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="My Assigned Rooms"
+            android:textSize="23sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:gravity="center"/>
+
+        <Space
+            android:layout_width="55dp"
+            android:layout_height="1dp"/>
+
+    </LinearLayout>
+
+    <!-- Page title -->
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Faculty Room Management"
+        android:textSize="19sp"
+        android:textStyle="bold"
+        android:textColor="#252B3A"
+        android:paddingStart="18dp"
+        android:paddingTop="18dp"
+        android:paddingBottom="8dp"/>
+
+    <!-- Add Room -->
+
+    <Button
+        android:id="@+id/addRoomButton"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:text="+ ADD ROOM"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#85180F"/>
+
+    <!-- Room List -->
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/roomContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="18dp"/>
+
+    </ScrollView>
+
+</LinearLayout>

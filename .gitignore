@@ -1,25 +1,15 @@
-# Android Studio
-.idea/
-*.iml
-
-# Gradle
-.gradle/
-build/
-**/build/
-
-# Local configuration
-local.properties
-
-# APK files
-*.apk
-*.aab
-
-# PHP secrets
+﻿# Local database credentials
 php_api/config.php
 
-# PHP temporary/test files
-php_api/*.log
+# Android local settings and build files
+local.properties
+.gradle/
+build/
+*/build/
 
-# OS files
-.DS_Store
-Thumbs.db
+# Environment secrets
+.env
+.env.*
+
+# Android Studio local settings
+.idea/

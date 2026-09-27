@@ -1,18 +1,65 @@
-# UniRoom functional Android + PHP + PostgreSQL
-Architecture: Android Java/XML -> Retrofit -> PHP REST API -> PDO -> PostgreSQL. pgAdmin 4 is used to view/manage PostgreSQL, not as the runtime database.
+# UniRoom – Android + PHP/PostgreSQL
 
-## Setup
-1. In pgAdmin 4, open database `banghal` and run `database/uniroom_banghal.sql`.
-2. In XAMPP start Apache and enable `pdo_pgsql` and `pgsql` in php.ini, then restart Apache. This follows the supplied lesson guide, which requires those extensions.
-3. Copy `php_api` to `C:\xampp\htdocs\uniroom_api`.
-4. Copy `config.example.php` to `config.php` and put your LOCAL PostgreSQL password in `config.php` only.
-5. Test `http://localhost/uniroom_api/test_connection.php`.
-6. Open this project in Android Studio and run the emulator. The Retrofit base URL is `http://10.0.2.2/uniroom_api/`.
+This version keeps the existing Java/Groovy Android project and adds a polished student experience plus live assigned-room integration.
 
-## Required demo
-- Valid registration -> success message -> pgAdmin SELECT shows inserted row.
-- Empty required field -> Android field validation.
-- Existing username/email -> PHP returns HTTP 409 and Android displays duplicate message.
-- Login -> Dashboard -> Schedule / Find My Room / Profile.
+## What was improved
 
-Never put PostgreSQL credentials in Android Studio. The supplied lesson specifically says the safe path is Android -> HTTP -> PHP API -> PostgreSQL and that database passwords must not be placed in the Android APK. See pages 5, 16, 27 and 35 of the supplied guide.
+- Cleaner UniRoom login and registration screens
+- Correct BS-IT A1 and BS-MedTech A1 section IDs
+- Persistent Android login session
+- Student dashboard with live assigned room
+- Student dashboard with live schedule / next-class summary
+- Live schedule screen using the PHP schedule API instead of hardcoded classes
+- Live room browser using the PHP rooms API
+- Room filters: All, Tech Hub, Floor 3, Available
+- Cleaner profile screen and working logout
+- Working back/home/schedule/find-room/profile navigation
+- Student room API: `student_room.php`
+
+## PHP setup
+
+Copy `php_api/student_room.php` to:
+
+`C:\xampp\htdocs\php_api\student_room.php`
+
+Keep the existing working `db.php`, `config.php`, `login.php`, `register.php`, `profile.php`, `schedule.php`, and `rooms.php` in that folder.
+
+The Android app expects the API base URL configured in:
+
+`app/src/main/java/com/example/uniroom/network/Client.java`
+
+Example for a phone connected to the same Wi-Fi as the PC:
+
+`http://YOUR-PC-IP/php_api/`
+
+## Room data flow
+
+Faculty website → `assign_room.php` → PostgreSQL `section_rooms` → `student_room.php` → Android Student Dashboard.
+
+## Important database table
+
+The live database needs the `section_rooms` bridge table:
+
+```sql
+CREATE TABLE IF NOT EXISTS section_rooms (
+    id SERIAL PRIMARY KEY,
+    section_id INTEGER NOT NULL UNIQUE,
+    room_id INTEGER NOT NULL,
+    CONSTRAINT fk_section_rooms_section
+        FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE,
+    CONSTRAINT fk_section_rooms_room
+        FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
+);
+```
+
+## Testing order
+
+1. Assign a room to BSIT-A1 or BSMedTech-A1 from the faculty website.
+2. Register a student in the matching section.
+3. Log in to Android using that student account.
+4. The Student Dashboard should show the assigned room.
+5. Open My Schedule and confirm the student's database schedule appears.
+6. Open Find a Room and confirm rooms are loaded from PostgreSQL.
+7. Open My Profile and test Log Out.
+
+The project is Java + XML and uses Groovy Gradle scripts.
