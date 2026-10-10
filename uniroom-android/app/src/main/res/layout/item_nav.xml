@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One bottom-navigation button: icon in a pill + label -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:background="@drawable/ripple_round_16"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
+
+    <FrameLayout
+        android:id="@+id/nav_pill"
+        android:layout_width="56dp"
+        android:layout_height="32dp"
+        android:background="@drawable/bg_pill">
+
+        <ImageView
+            android:id="@+id/nav_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:importantForAccessibility="no" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/nav_label"
+        style="@style/T.Tiny"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:singleLine="true" />
+</LinearLayout>

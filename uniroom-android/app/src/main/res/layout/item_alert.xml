@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="@drawable/ripple_rect"
+    android:orientation="horizontal"
+    android:paddingStart="16dp"
+    android:paddingTop="16dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="16dp">
+
+    <ImageView
+        android:id="@+id/alert_icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_circle"
+        android:importantForAccessibility="no"
+        android:padding="11dp" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/alert_title"
+                style="@style/T.BodyMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/alert_time"
+                style="@style/T.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/alert_body"
+            style="@style/T.Small"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:lineSpacingExtra="3dp" />
+
+        <TextView
+            android:id="@+id/alert_from"
+            style="@style/T.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="@font/inter_medium" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/alert_dot"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_circle"
+        android:backgroundTint="?attr/uniPrimary" />
+</LinearLayout>

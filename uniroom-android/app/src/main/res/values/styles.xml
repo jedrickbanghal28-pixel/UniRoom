@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ===== Text styles (Inter font) ===== -->
+    <style name="T">
+        <item name="android:fontFamily">@font/inter_regular</item>
+        <item name="android:textColor">@color/ink</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+    <style name="T.Body"><item name="android:textSize">15sp</item></style>
+    <style name="T.BodyMedium"><item name="android:textSize">15sp</item><item name="android:fontFamily">@font/inter_medium</item></style>
+    <style name="T.BodySemi"><item name="android:textSize">15sp</item><item name="android:fontFamily">@font/inter_semibold</item></style>
+    <style name="T.Small"><item name="android:textSize">14sp</item><item name="android:textColor">@color/muted</item></style>
+    <style name="T.SmallInk"><item name="android:textSize">14sp</item></style>
+    <style name="T.SmallSemi"><item name="android:textSize">14sp</item><item name="android:fontFamily">@font/inter_semibold</item></style>
+    <style name="T.Meta"><item name="android:textSize">13sp</item><item name="android:textColor">@color/muted</item></style>
+    <style name="T.MetaInk"><item name="android:textSize">13sp</item></style>
+    <style name="T.MetaSemi"><item name="android:textSize">13sp</item><item name="android:fontFamily">@font/inter_semibold</item></style>
+    <style name="T.Label"><item name="android:textSize">13sp</item><item name="android:fontFamily">@font/inter_medium</item></style>
+    <style name="T.Caption"><item name="android:textSize">12sp</item><item name="android:textColor">@color/muted</item></style>
+    <style name="T.CaptionSemi"><item name="android:textSize">12sp</item><item name="android:fontFamily">@font/inter_semibold</item></style>
+    <style name="T.Tiny"><item name="android:textSize">11sp</item><item name="android:textColor">@color/muted</item><item name="android:fontFamily">@font/inter_medium</item></style>
+    <style name="T.Section"><item name="android:textSize">15sp</item><item name="android:fontFamily">@font/inter_semibold</item></style>
+    <style name="T.Title"><item name="android:textSize">18sp</item><item name="android:fontFamily">@font/inter_semibold</item></style>
+    <style name="T.TitleBold"><item name="android:textSize">18sp</item><item name="android:fontFamily">@font/inter_bold</item><item name="android:letterSpacing">-0.015</item></style>
+    <style name="T.RoomCode"><item name="android:textSize">17sp</item><item name="android:fontFamily">@font/inter_semibold</item><item name="android:letterSpacing">-0.015</item></style>
+    <style name="T.Headline"><item name="android:textSize">20sp</item><item name="android:fontFamily">@font/inter_bold</item><item name="android:letterSpacing">-0.015</item></style>
+    <style name="T.Heading2"><item name="android:textSize">22sp</item><item name="android:fontFamily">@font/inter_bold</item><item name="android:letterSpacing">-0.02</item></style>
+    <style name="T.Display"><item name="android:textSize">26sp</item><item name="android:fontFamily">@font/inter_bold</item><item name="android:letterSpacing">-0.02</item></style>
+    <style name="T.Brand"><item name="android:textSize">30sp</item><item name="android:fontFamily">@font/inter_bold</item><item name="android:letterSpacing">-0.02</item><item name="android:textColor">@color/white</item></style>
+    <style name="T.Error"><item name="android:textSize">12sp</item><item name="android:fontFamily">@font/inter_medium</item><item name="android:textColor">@color/danger</item></style>
+    <style name="T.Link"><item name="android:textSize">14sp</item><item name="android:fontFamily">@font/inter_semibold</item><item name="android:textColor">?attr/uniPrimary</item></style>
+
+    <!-- ===== Form fields ===== -->
+    <style name="Field" />
+    <!-- The rounded box around an input. It turns blue/maroon while the input has focus. -->
+    <style name="Field.Box">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:background">@drawable/bg_field</item>
+        <item name="android:addStatesFromChildren">true</item>
+    </style>
+    <style name="Field.Input" parent="android:Widget.Material.Light.EditText">
+        <item name="android:fontFamily">@font/inter_regular</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/ink</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:background">@null</item>
+        <item name="android:textColorHint">@color/muted_hint</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textCursorDrawable">@drawable/cursor</item>
+    </style>
+    <style name="Field.Label" parent="T.Label">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">6dp</item>
+    </style>
+    <style name="Field.Icon">
+        <item name="android:layout_width">18dp</item>
+        <item name="android:layout_height">18dp</item>
+        <item name="android:layout_marginEnd">10dp</item>
+        <item name="android:tint">@color/muted</item>
+    </style>
+    <style name="Field.Error" parent="T.Error">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <!-- ===== Buttons (LinearLayout + TextView so an icon or spinner can sit beside the label) ===== -->
+    <style name="Btn">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+    <style name="Btn.Primary"><item name="android:background">@drawable/btn_primary</item></style>
+    <style name="Btn.Secondary"><item name="android:background">@drawable/btn_secondary</item></style>
+    <style name="Btn.Outline"><item name="android:background">@drawable/btn_outline</item></style>
+    <style name="Btn.Danger"><item name="android:background">@drawable/btn_danger</item></style>
+
+    <style name="BtnText" parent="T">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">@font/inter_semibold</item>
+        <item name="android:maxLines">1</item>
+    </style>
+    <style name="BtnText.Primary"><item name="android:textColor">@color/white</item></style>
+    <style name="BtnText.Secondary"><item name="android:textColor">?attr/uniPrimary</item></style>
+    <style name="BtnText.Outline"><item name="android:textColor">@color/ink</item></style>
+    <style name="BtnText.Danger"><item name="android:textColor">@color/danger</item></style>
+
+    <style name="BtnIcon">
+        <item name="android:layout_width">17dp</item>
+        <item name="android:layout_height">17dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+    </style>
+
+    <!-- Round icon button (back arrow, bell, close ...) -->
+    <style name="IconButton">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:padding">9dp</item>
+        <item name="android:background">@drawable/ripple_circle</item>
+        <item name="android:tint">@color/ink</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <!-- White rounded card -->
+    <style name="Card">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/bg_card</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+    <!-- Card that holds rows separated by thin lines -->
+    <style name="Card.List">
+        <item name="android:showDividers">middle</item>
+        <item name="android:divider">@drawable/divider</item>
+    </style>
+
+    <style name="SectionHeading" parent="T.Section">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">4dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+    </style>
+</resources>

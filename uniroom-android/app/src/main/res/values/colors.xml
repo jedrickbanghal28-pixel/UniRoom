@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Student (blue) brand -->
+    <color name="primary_student">#1E4D78</color>
+    <color name="primary_soft_student">#E5EEF7</color>
+    <color name="primary_tint_student">#66E5EEF7</color>
+
+    <!-- Faculty (maroon) brand -->
+    <color name="primary_faculty">#8A1C1C</color>
+    <color name="primary_soft_faculty">#F9E8E6</color>
+    <color name="primary_tint_faculty">#66F9E8E6</color>
+
+    <!-- Neutrals -->
+    <color name="canvas">#F4F6F9</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="ink">#111827</color>
+    <color name="muted">#626E80</color>
+    <color name="muted_hint">#99626E80</color>
+    <color name="line">#E4E8EE</color>
+    <color name="line_soft">#B3E4E8EE</color>
+
+    <!-- Status -->
+    <color name="success">#158054</color>
+    <color name="success_soft">#DFF5EA</color>
+    <color name="warning">#A86206</color>
+    <color name="warning_soft">#FDF2DC</color>
+    <color name="warning_border">#33A86206</color>
+    <color name="danger">#B92626</color>
+    <color name="danger_soft">#FDE8E8</color>
+    <color name="danger_border">#33B92626</color>
+
+    <!-- White / ink with transparency (used on coloured headers and the photo viewer) -->
+    <color name="white">#FFFFFF</color>
+    <color name="white_15">#26FFFFFF</color>
+    <color name="white_60">#99FFFFFF</color>
+    <color name="white_70">#B3FFFFFF</color>
+    <color name="white_75">#BFFFFFFF</color>
+    <color name="white_80">#CCFFFFFF</color>
+    <color name="ink_70">#B3111827</color>
+    <color name="ink_80">#CC111827</color>
+    <color name="transparent">#00000000</color>
+</resources>
