@@ -1146,160 +1146,194 @@ if (
    ADMIN USER MANAGEMENT
 ===================================================== */
 
+let allUsers = [];
+
 async function loadUsersTable() {
 
-    const table =
-        document.getElementById(
-            "usersTable"
-        );
+    const table = document.getElementById("usersTable");
+    if (!table) return;
 
-
-    if (!table) {
-
-        console.error(
-            "usersTable not found."
-        );
-
-        return;
-    }
-
-
-    table.innerHTML = `
-        <tr>
-            <td colspan="8">
-                Loading users...
-            </td>
-        </tr>
-    `;
-
+    table.innerHTML = '<tr><td colspan="8">Loading users...</td></tr>';
 
     try {
 
-        const response =
-            await apiFetch(
-                "admin_users.php"
-            );
+        const response = await apiFetch("admin_users.php");
+        const result = await readJson(response);
 
-
-        const result =
-            await readJson(response);
-
-
-        if (
-            !response.ok ||
-            !result.success
-        ) {
-
-            table.innerHTML = `
-                <tr>
-                    <td colspan="8">
-                        Unable to load users.
-                    </td>
-                </tr>
-            `;
-
-
-            console.error(
-                result.message ||
-                "Unable to load users."
-            );
-
-
+        if (!response.ok || !result.success) {
+            table.innerHTML = '<tr><td colspan="8">Unable to load users.</td></tr>';
+            console.error(result.message || "Unable to load users.");
             return;
         }
 
+        allUsers = result.users || [];
 
-        table.innerHTML = "";
-
-
-        if (
-            !result.users ||
-            result.users.length === 0
-        ) {
-
-            table.innerHTML = `
-                <tr>
-                    <td colspan="8">
-                        No users found.
-                    </td>
-                </tr>
-            `;
-
-
-            return;
+        // Course filter options from the users' courses
+        const courseSelect = document.getElementById("userCourseFilter");
+        if (courseSelect) {
+            const current = courseSelect.value;
+            const courses = uniqueSorted(allUsers.map(function(u) { return u.department; }));
+            courseSelect.innerHTML = '<option value="">All courses</option>' +
+                courses.map(function(c) {
+                    return '<option value="' + escapeHtml(c) + '">' + escapeHtml(c) + '</option>';
+                }).join("");
+            courseSelect.value = courses.indexOf(current) >= 0 ? current : "";
         }
-
-
-        result.users.forEach(
-            function(user) {
-
-                const fullName =
-                    (user.first_name || "") +
-                    " " +
-                    (user.last_name || "");
-
-                const pending =
-                    user.status === "Pending setup";
-
-                const statusBadge = pending
-                    ? '<span class="badge badge-yellow">Pending setup</span>'
-                    : '<span class="badge badge-green">Active</span>';
-
-                const resendButton = pending
-                    ? '<button class="link-btn" onclick="resendInvite(' + Number(user.id) + ', this)">Resend email</button>'
-                    : "";
-
-                table.innerHTML += `
-
-                    <tr>
-
-                        <td>${escapeHtml(fullName.trim())}</td>
-
-                        <td>${escapeHtml(user.email || "—")}</td>
-
-                        <td>${escapeHtml(capitalize(user.role || "—"))}</td>
-
-                        <td>${escapeHtml(user.department || "—")}</td>
-
-                        <td>${escapeHtml(user.section || "—")}</td>
-
-                        <td>${escapeHtml(user.gender || "—")}</td>
-
-                        <td>${escapeHtml(user.age || "—")}</td>
-
-                        <td>${statusBadge} ${resendButton}</td>
-
-                    </tr>
-
-                `;
-
-            }
-        );
-
+        updateUserSectionFilter();
+        renderUsersTable();
 
     } catch (error) {
 
-        console.error(
-            "User management error:",
-            error
-        );
-
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="8">
-                    Unable to connect to the server.
-                </td>
-            </tr>
-        `;
+        console.error("User management error:", error);
+        table.innerHTML = '<tr><td colspan="8">Unable to connect to the server.</td></tr>';
 
     }
 
 }
+
+
+/* Section filter shows only the sections of the chosen course. */
+function updateUserSectionFilter() {
+
+    const select = document.getElementById("userSectionFilter");
+    if (!select) return;
+
+    const course = document.getElementById("userCourseFilter").value;
+    const current = select.value;
+    const sections = uniqueSorted(allUsers
+        .filter(function(u) { return !course || u.department === course; })
+        .map(function(u) { return u.section; }));
+
+    select.innerHTML = '<option value="">All sections</option>' +
+        sections.map(function(s) {
+            return '<option value="' + escapeHtml(s) + '">' + escapeHtml(s) + '</option>';
+        }).join("");
+    select.value = sections.indexOf(current) >= 0 ? current : "";
+
+}
+
+
+/*
+ * Users table: filtered by course / section / role / search and sorted by
+ * course → section → surname (or by surname / email only).
+ */
+function renderUsersTable() {
+
+    const table = document.getElementById("usersTable");
+    if (!table) return;
+
+    const course = valueOf("userCourseFilter");
+    const section = valueOf("userSectionFilter");
+    const role = valueOf("userRoleFilter");
+    const sort = valueOf("userSort") || "course";
+    const search = valueOf("userSearch").toLowerCase();
+
+    const users = allUsers.filter(function(u) {
+        if (course && u.department !== course) return false;
+        if (section && u.section !== section) return false;
+        if (role && u.role !== role) return false;
+        if (search) {
+            const text = ((u.first_name || "") + " " + (u.last_name || "") + " " + (u.email || "")).toLowerCase();
+            if (text.indexOf(search) < 0) return false;
+        }
+        return true;
+    });
+
+    users.sort(function(a, b) {
+        if (sort === "email") return compareText(a.email, b.email);
+        if (sort === "surname") return compareUsersBySurname(a, b);
+        return compareText(a.department, b.department, true) ||
+               compareText(a.section, b.section, true) ||
+               compareUsersBySurname(a, b);
+    });
+
+    const count = document.getElementById("userCount");
+    if (count) count.textContent = users.length + " of " + allUsers.length + " account(s)";
+
+    if (users.length === 0) {
+        table.innerHTML = '<tr><td colspan="8">No users found.</td></tr>';
+        return;
+    }
+
+    let html = "";
+    let lastGroup = null;
+
+    users.forEach(function(user) {
+
+        // Group heading per course + section when sorted by course
+        if (sort === "course") {
+            const group = (user.department || "No course") + (user.section ? " · " + user.section : "");
+            if (group !== lastGroup) {
+                html += '<tr class="group-row"><td colspan="8">' + escapeHtml(group) + '</td></tr>';
+                lastGroup = group;
+            }
+        }
+
+        const pending = user.status === "Pending setup";
+        const statusBadge = pending
+            ? '<span class="badge badge-yellow">Pending setup</span>'
+            : '<span class="badge badge-green">Active</span>';
+        const resendButton = pending
+            ? '<button class="link-btn" onclick="resendInvite(' + Number(user.id) + ', this)">Resend email</button>'
+            : "";
+
+        html +=
+            "<tr>" +
+            "<td>" + escapeHtml(surnameFirst(user)) + "</td>" +
+            "<td>" + escapeHtml(user.email || "—") + "</td>" +
+            "<td>" + escapeHtml(capitalize(user.role || "—")) + "</td>" +
+            "<td>" + escapeHtml(user.department || "—") + "</td>" +
+            "<td>" + escapeHtml(user.section || "—") + "</td>" +
+            "<td>" + escapeHtml(user.gender || "—") + "</td>" +
+            "<td>" + escapeHtml(user.age || "—") + "</td>" +
+            "<td>" + statusBadge + " " + resendButton + "</td>" +
+            "</tr>";
+    });
+
+    table.innerHTML = html;
+
+}
+
+
+/* ---------- small helpers for the tables ---------- */
+
+function valueOf(id) {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : "";
+}
+
+/* "Dela Cruz, Juan" */
+function surnameFirst(user) {
+    const last = (user.last_name || "").trim();
+    const first = (user.first_name || "").trim();
+    return last && first ? last + ", " + first : (last || first || "—");
+}
+
+/* A–Z, ignoring upper/lower case. Empty values go last when emptyLast is true. */
+function compareText(a, b, emptyLast) {
+    a = (a || "").toString();
+    b = (b || "").toString();
+    if (emptyLast && !a && b) return 1;
+    if (emptyLast && a && !b) return -1;
+    return a.localeCompare(b, undefined, { sensitivity: "base", numeric: true });
+}
+
+function compareUsersBySurname(a, b) {
+    return compareText(a.last_name, b.last_name) ||
+           compareText(a.first_name, b.first_name) ||
+           compareText(a.email, b.email);
+}
+
+function uniqueSorted(values) {
+    const seen = {};
+    values.forEach(function(v) { if (v) seen[v] = true; });
+    return Object.keys(seen).sort(function(a, b) { return compareText(a, b); });
+}
+
 /* Send the account email again (new setup link) */
 async function resendInvite(userId, button) {
 
-    if (!confirm("Send a new password setup link to this user? The old link will stop working.")) {
+    if (!confirm("Send this user a new temporary password? The old one will stop working.")) {
         return;
     }
 
@@ -1311,7 +1345,7 @@ async function resendInvite(userId, button) {
         const response = await apiFetch("admin_resend_invite.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: userId, password_mode: "link" })
+            body: JSON.stringify({ user_id: userId, password_mode: "temporary" })
         });
 
         const result = await readJson(response);
@@ -1321,7 +1355,10 @@ async function resendInvite(userId, button) {
         } else if (!result.email_sent) {
             alert(
                 "The email could not be sent (" + (result.email_error || "unknown error") + ").\n\n" +
-                "Give the user this setup link instead:\n" + (result.setup_link || "")
+                (result.temporary_password
+                    ? "Give the user these details instead:\nUsername: " + (result.username || "") +
+                      "\nTemporary password: " + result.temporary_password
+                    : "Give the user this setup link instead:\n" + (result.setup_link || ""))
             );
         } else {
             alert(result.message);
@@ -1417,21 +1454,24 @@ async function loadDepartments() {
 
                 container.innerHTML += `
 
-                    <div class="department-card">
+                    <div class="department-card clickable" id="deptCard${Number(department.id)}"
+                         onclick="openDepartment(${Number(department.id)})"
+                         title="Show the students of ${escapeHtml(department.code)}">
 
                         <h3>
-                            ${department.code}
+                            ${escapeHtml(department.code)}
                         </h3>
 
                         <p>
-                            ${department.sections}
-                            section(s)
+                            ${escapeHtml(department.name || "")}
                         </p>
 
                         <p>
-                            ${department.students}
-                            student(s)
+                            ${Number(department.sections)} section(s) ·
+                            ${Number(department.students)} student(s)
                         </p>
+
+                        <span class="card-link">View students →</span>
 
                     </div>
 
@@ -1439,6 +1479,9 @@ async function loadDepartments() {
 
             }
         );
+
+        // Keep the open department open after a refresh
+        if (openDepartmentId) openDepartment(openDepartmentId);
 
 
     } catch (error) {
@@ -1454,6 +1497,101 @@ async function loadDepartments() {
         `;
 
     }
+
+}
+
+/* =====================================================
+   DEPARTMENT → STUDENTS (name, email, section, status)
+===================================================== */
+
+let openDepartmentId = null;
+let departmentStudents = [];
+
+async function openDepartment(departmentId) {
+
+    openDepartmentId = departmentId;
+
+    document.querySelectorAll(".department-card").forEach(function(card) {
+        card.classList.toggle("active", card.id === "deptCard" + departmentId);
+    });
+
+    const panel = document.getElementById("departmentStudentsPanel");
+    const table = document.getElementById("departmentStudentsTable");
+    panel.classList.remove("hidden");
+    table.innerHTML = '<tr><td colspan="4">Loading students...</td></tr>';
+
+    try {
+
+        const response = await apiFetch("admin_department_students.php?department_id=" + encodeURIComponent(departmentId));
+        const result = await readJson(response);
+
+        if (!response.ok || !result.success) {
+            table.innerHTML = '<tr><td colspan="4">' + escapeHtml(result.message || "Unable to load students.") + '</td></tr>';
+            return;
+        }
+
+        departmentStudents = result.students || [];
+        const dept = result.department || {};
+        document.getElementById("departmentStudentsTitle").textContent =
+            (dept.code || "Department") + " students" + (dept.name ? " – " + dept.name : "");
+
+        const sectionSelect = document.getElementById("deptSectionFilter");
+        const sections = uniqueSorted(departmentStudents.map(function(s) { return s.section; }));
+        sectionSelect.innerHTML = '<option value="">All sections</option>' +
+            sections.map(function(s) {
+                return '<option value="' + escapeHtml(s) + '">' + escapeHtml(s) + '</option>';
+            }).join("");
+        document.getElementById("deptSearch").value = "";
+
+        renderDepartmentStudents();
+        panel.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    } catch (error) {
+
+        console.error("Department students error:", error);
+        table.innerHTML = '<tr><td colspan="4">Unable to connect to the server.</td></tr>';
+
+    }
+
+}
+
+
+function renderDepartmentStudents() {
+
+    const table = document.getElementById("departmentStudentsTable");
+    const section = valueOf("deptSectionFilter");
+    const search = valueOf("deptSearch").toLowerCase();
+
+    const rows = departmentStudents.filter(function(s) {
+        if (section && s.section !== section) return false;
+        if (search) {
+            const text = ((s.first_name || "") + " " + (s.last_name || "") + " " + (s.email || "")).toLowerCase();
+            if (text.indexOf(search) < 0) return false;
+        }
+        return true;
+    });
+
+    document.getElementById("departmentStudentsCount").textContent =
+        rows.length + " of " + departmentStudents.length + " student(s), sorted by section and surname";
+
+    if (rows.length === 0) {
+        table.innerHTML = '<tr><td colspan="4">' +
+            (departmentStudents.length === 0 ? "No students in this department yet." : "No students match.") +
+            '</td></tr>';
+        return;
+    }
+
+    table.innerHTML = rows.map(function(s) {
+        const badge = s.status === "Pending setup"
+            ? '<span class="badge badge-yellow">Pending setup</span>'
+            : '<span class="badge badge-green">Active</span>';
+        return "<tr>" +
+            "<td>" + escapeHtml(surnameFirst(s)) + "</td>" +
+            "<td>" + escapeHtml(s.email || "—") + "</td>" +
+            "<td>" + escapeHtml(s.section || "—") + "</td>" +
+            "<td>" + badge + "</td>" +
+            "</tr>";
+    }).join("");
 
 }
 

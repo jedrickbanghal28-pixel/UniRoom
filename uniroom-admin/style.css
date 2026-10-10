@@ -1511,3 +1511,71 @@ td {
         grid-column: auto;
     }
 }
+
+
+/* =====================================================
+   DEPARTMENT STUDENTS + USER FILTERS
+===================================================== */
+
+.department-card.clickable {
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s;
+}
+
+.department-card.clickable:hover {
+    border-color: var(--maroon);
+}
+
+.department-card.active {
+    border-color: var(--maroon);
+    box-shadow: 0 0 0 2px rgba(128, 0, 32, .12);
+}
+
+.department-card .card-link {
+    color: var(--maroon);
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.panel-head-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-bar select,
+.filter-bar input {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 13px;
+    background: white;
+}
+
+.filter-bar input[type="search"] {
+    min-width: 200px;
+}
+
+.muted-text {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.group-row td {
+    background: #faf5f6;
+    color: var(--maroon);
+    font-weight: bold;
+    font-size: 12px;
+    padding: 8px 12px;
+}

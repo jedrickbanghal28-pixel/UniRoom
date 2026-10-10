@@ -45,6 +45,7 @@ try {
     $response = [
         'success' => true,
         'email_sent' => $sent,
+        'username' => $user['username'],
         'message' => $sent ? 'A new email was sent to ' . $user['email'] . '.' : 'The email could not be sent.',
     ];
     if (!$sent) {

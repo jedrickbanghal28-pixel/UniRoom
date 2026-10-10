@@ -292,7 +292,7 @@
                 <h1>Departments</h1>
 
                 <p>
-                    View all school departments.
+                    View all school departments. Click a department to see its students.
                 </p>
 
             </div>
@@ -302,6 +302,39 @@
                 class="department-grid"
                 id="departmentCards"
             ></div>
+
+
+            <div class="panel hidden" id="departmentStudentsPanel" style="margin-top:20px">
+
+                <div class="panel-head-row">
+                    <div>
+                        <h3 id="departmentStudentsTitle">Students</h3>
+                        <small id="departmentStudentsCount" class="muted-text"></small>
+                    </div>
+                    <div class="filter-bar">
+                        <select id="deptSectionFilter" onchange="renderDepartmentStudents()">
+                            <option value="">All sections</option>
+                        </select>
+                        <input type="search" id="deptSearch" placeholder="Search name or email"
+                               oninput="renderDepartmentStudents()">
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Section</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="departmentStudentsTable"></tbody>
+                    </table>
+                </div>
+
+            </div>
 
         </section>
 
@@ -318,13 +351,36 @@
                 <h1>User Management</h1>
 
                 <p>
-                    View accounts currently registered in UNIROOM.
+                    View accounts registered in UNIROOM, grouped by course and section.
                 </p>
 
             </div>
 
 
             <div class="panel">
+
+                <div class="filter-bar" style="margin-bottom:14px">
+                    <select id="userCourseFilter" onchange="updateUserSectionFilter(); renderUsersTable()">
+                        <option value="">All courses</option>
+                    </select>
+                    <select id="userSectionFilter" onchange="renderUsersTable()">
+                        <option value="">All sections</option>
+                    </select>
+                    <select id="userRoleFilter" onchange="renderUsersTable()">
+                        <option value="">All roles</option>
+                        <option value="student">Students</option>
+                        <option value="faculty">Faculty</option>
+                        <option value="admin">Admins</option>
+                    </select>
+                    <select id="userSort" onchange="renderUsersTable()">
+                        <option value="course">Sort: Course → Section → Surname</option>
+                        <option value="surname">Sort: Surname (A–Z)</option>
+                        <option value="email">Sort: Email (A–Z)</option>
+                    </select>
+                    <input type="search" id="userSearch" placeholder="Search name or email"
+                           oninput="renderUsersTable()">
+                    <small id="userCount" class="muted-text"></small>
+                </div>
 
                 <div class="table-container">
 
@@ -336,7 +392,7 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
-                                <th>Department</th>
+                                <th>Course</th>
                                 <th>Section</th>
                                 <th>Gender</th>
                                 <th>Age</th>
@@ -504,18 +560,18 @@
                     <div class="radio-cards">
 
                         <label class="radio-card">
-                            <input type="radio" name="acPasswordMode" value="link" checked>
+                            <input type="radio" name="acPasswordMode" value="link">
                             <span>
-                                <strong>Send a password setup link <em>Recommended</em></strong>
+                                <strong>Send a password setup link</strong>
                                 <small>The user opens a secure one-time link from the email and chooses their own password.</small>
                             </span>
                         </label>
 
                         <label class="radio-card">
-                            <input type="radio" name="acPasswordMode" value="temporary">
+                            <input type="radio" name="acPasswordMode" value="temporary" checked>
                             <span>
-                                <strong>Send a temporary password</strong>
-                                <small>A random password is emailed. The user must change it the first time they log in.</small>
+                                <strong>Send username and temporary password <em>Recommended</em></strong>
+                                <small>The email shows the username and a temporary password. The user must change it before they can use the app or website.</small>
                             </span>
                         </label>
 
@@ -597,17 +653,17 @@
                             <div class="radio-cards compact">
 
                                 <label class="radio-card">
-                                    <input type="radio" name="bulkPasswordMode" value="link" checked>
+                                    <input type="radio" name="bulkPasswordMode" value="link">
                                     <span>
-                                        <strong>Password setup link <em>Recommended</em></strong>
+                                        <strong>Password setup link</strong>
                                         <small>Each user sets their own password from the email.</small>
                                     </span>
                                 </label>
 
                                 <label class="radio-card">
-                                    <input type="radio" name="bulkPasswordMode" value="temporary">
+                                    <input type="radio" name="bulkPasswordMode" value="temporary" checked>
                                     <span>
-                                        <strong>Temporary password</strong>
+                                        <strong>Username and temporary password <em>Recommended</em></strong>
                                         <small>Must be changed at first login.</small>
                                     </span>
                                 </label>

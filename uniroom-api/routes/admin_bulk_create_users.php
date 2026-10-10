@@ -24,7 +24,7 @@ const MAX_ROWS_PER_REQUEST = 50;
 $admin = require_role(['admin']);
 $data = body();
 $rows = $data['rows'] ?? [];
-$mode = ($data['password_mode'] ?? 'link') === 'temporary' ? 'temporary' : 'link';
+$mode = ($data['password_mode'] ?? 'temporary') === 'link' ? 'link' : 'temporary';
 $validateOnly = !empty($data['validate_only']);
 
 if (!is_array($rows) || count($rows) === 0) {

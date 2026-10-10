@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../lib/db.php';
+require_once __DIR__ . '/../lib/auth.php';
 
 $data = body();
 
@@ -66,11 +67,20 @@ try {
     $user['must_change_password'] = (bool) $user['must_change_password'];
     $user['section_id'] = $user['section_id'] === null ? 0 : (int) $user['section_id'];
 
-    echo json_encode([
+    // The app gets a login token (for notifications) only after the user has
+    // replaced the temporary password with their own.
+    $response = [
         'success' => true,
-        'message' => 'Login successful.',
+        'message' => $user['must_change_password']
+            ? 'Please change your temporary password to continue.'
+            : 'Login successful.',
         'user' => $user
-    ]);
+    ];
+    if (!$user['must_change_password']) {
+        $response['token'] = make_token($user, 24 * 7);
+    }
+
+    echo json_encode($response);
 
 } catch (PDOException $e) {
 

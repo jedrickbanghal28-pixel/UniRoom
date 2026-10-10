@@ -17,7 +17,7 @@ require_once __DIR__ . '/../lib/accounts.php';
 
 $admin = require_role(['admin']);
 $data = body();
-$mode = ($data['password_mode'] ?? 'link') === 'temporary' ? 'temporary' : 'link';
+$mode = ($data['password_mode'] ?? 'temporary') === 'link' ? 'link' : 'temporary';
 
 try {
     $lookup = load_lookup($pdo);
