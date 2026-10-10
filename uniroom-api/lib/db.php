@@ -45,10 +45,31 @@ try {
         PDO::ATTR_EMULATE_PREPARES   => true,
     ]);
 } catch (PDOException $e) {
+    // Explain WHY the connection failed (the password is never shown).
+    $raw = $e->getMessage();
+    if ($db['password'] !== '') $raw = str_replace($db['password'], '***', $raw);
+
+    if (stripos($raw, 'password authentication failed') !== false) {
+        $hint = 'Wrong DB_PASSWORD. Use the Supabase database password (or reset it in Supabase → Project Settings → Database).';
+    } elseif (stripos($raw, 'Tenant or user not found') !== false) {
+        $hint = 'Wrong DB_USER or DB_HOST. Copy both again from Supabase → Connect → Transaction pooler (user looks like postgres.xxxxxxxx).';
+    } elseif (stripos($raw, 'could not translate host name') !== false || stripos($raw, 'Name or service not known') !== false) {
+        $hint = 'Wrong DB_HOST. Copy it again from Supabase → Connect → Transaction pooler.';
+    } elseif (stripos($raw, 'timeout') !== false || stripos($raw, 'timed out') !== false) {
+        $hint = 'The database did not answer. Check DB_HOST and DB_PORT (6543), and that the Supabase project is not paused.';
+    } elseif ($db['password'] === '' || strpos($db['password'], 'PUT_') === 0) {
+        $hint = 'DB_PASSWORD is empty or still the placeholder. Add your Supabase database password in Vercel and redeploy.';
+    } else {
+        $hint = 'Check DB_HOST, DB_PORT, DB_USER and DB_PASSWORD in Vercel, then redeploy.';
+    }
+
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Database connection failed.'
+        'message' => 'Database connection failed.',
+        'reason'  => $hint,
+        'details' => $raw,
+        'using'   => ['host' => $db['host'], 'port' => $db['port'], 'user' => $db['username'], 'dbname' => $db['dbname']],
     ]);
     exit;
 }
