@@ -1,0 +1,10 @@
+{
+  "first_name": "Test",
+  "last_name": "Student",
+  "student_id": "TEST001",
+  "username": "teststudent",
+  "email": "teststudent@example.com",
+  "contact_number": "09123456789",
+  "password": "test123456",
+  "section_id": 1
+}
