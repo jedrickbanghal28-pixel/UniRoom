@@ -13,6 +13,9 @@ public interface Api {
     @POST("login.php")
     Call<ApiResponse> login(@Body LoginRequest x);
 
+    @POST("change_password.php")
+    Call<ApiResponse> changePassword(@Body ChangePasswordRequest x);
+
     @POST("register.php")
     Call<ApiResponse> register(@Body RegisterRequest x);
 

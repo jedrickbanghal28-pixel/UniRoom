@@ -16,8 +16,16 @@ public class Models {
         }
     }
 
+    public static class ChangePasswordRequest {
+        public String login, current_password, new_password;
+        public ChangePasswordRequest(String login, String current, String next) {
+            this.login = login; current_password = current; new_password = next;
+        }
+    }
+
     public static class User {
-        public int id;
+        public int id, section_id;
+        public boolean must_change_password;
         public String first_name, last_name, student_id, username, email, contact_number,
                 role, program, section_name;
     }

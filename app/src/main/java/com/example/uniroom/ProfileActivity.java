@@ -81,7 +81,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private String cleanProgram(String program) {
         if (program == null) return "Program";
-        if (program.equalsIgnoreCase("BSMEDTECH")) return "BS-MedTech";
+        if (program.equalsIgnoreCase("BSMEDTECH") || program.equalsIgnoreCase("BSMT")) return "BS-MedTech";
         if (program.equalsIgnoreCase("BSIT")) return "BS-IT";
         return program;
     }
