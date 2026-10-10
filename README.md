@@ -14,14 +14,15 @@ UniRoom keeps the class schedules and room assignments of the BS-IT and BS-MedTe
 
 | Part | Address |
 |---|---|
-| API | https://uniroom-api.vercel.app/api (status: `/health.php`) |
+| API | https://uniroom-api.vercel.app/api (Swagger docs: https://uniroom-api.vercel.app/docs) |
 | Admin website | https://uniroom-admin.vercel.app |
 
 ## Repository layout
 
 | Folder | What it is |
 |---|---|
-| `uniroom-api/` | PHP 8 REST API (no framework). `api/index.php` is the single entry point, `routes/` holds the endpoints and `lib/` the database, token and mail helpers. |
+| `uniroom-fastapi/` | FastAPI (Python) REST API with Swagger docs at `/docs`. This is the current API. |
+| `uniroom-api/` | Previous PHP 8 version of the same API (no framework). `api/index.php` is the single entry point, `routes/` holds the endpoints and `lib/` the database, token and mail helpers. |
 | `uniroom-api/sql/` | Database scripts for Supabase/PostgreSQL. Run them in order: 01 to 05. |
 | `uniroom-api/postman/` | Postman collection for every endpoint. |
 | `uniroom-admin/` | Admin and faculty website (HTML, CSS, JavaScript). |
