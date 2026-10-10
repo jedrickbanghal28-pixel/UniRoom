@@ -1020,3 +1020,192 @@ def notification_delete(conn, data, query, token, notification_id):
     if cur.rowcount == 0:
         raise ApiError(404, "Notification not found.")
     return {"success": True, "message": "Notification deleted."}
+
+
+# =================================================================== faculty (create / update / delete)
+def faculty_save(conn, data, query, token, faculty_id=None):
+    require_role(token, ["admin"])
+    first, last, email = _s(data, "first_name"), _s(data, "last_name"), _s(data, "email").lower()
+    user_id = _i(data, "user_id") or None
+    errors = [{"field": f, "message": m} for f, v, m in (("first_name", first, "First name is required."),
+                                                         ("last_name", last, "Last name is required.")) if not v]
+    if errors:
+        raise ApiError(422, REQUIRED_MSG, errors=errors)
+    if user_id and not one(conn, "SELECT 1 FROM users WHERE id = %(u)s AND role = 'faculty'", {"u": user_id}):
+        raise ApiError(404, "user_id must be an existing faculty account.")
+    p = {"f": first, "l": last, "e": email or None, "u": user_id}
+    if faculty_id is None:
+        row = one(conn, "INSERT INTO faculty (first_name, last_name, email, user_id) VALUES (%(f)s, %(l)s, %(e)s, %(u)s) "
+                        "RETURNING id, first_name, last_name, email, user_id", p)
+        return {"success": True, "message": "Faculty member added successfully.", "faculty": row}
+    row = one(conn, "UPDATE faculty SET first_name=%(f)s, last_name=%(l)s, email=%(e)s, user_id=%(u)s WHERE id=%(id)s "
+                    "RETURNING id, first_name, last_name, email, user_id", {**p, "id": faculty_id})
+    if not row:
+        raise ApiError(404, "Faculty member not found.")
+    return {"success": True, "message": "Faculty member updated successfully.", "faculty": row}
+
+
+def faculty_delete(conn, data, query, token, faculty_id):
+    require_role(token, ["admin"])
+    try:
+        with conn.transaction():
+            conn.execute("DELETE FROM faculty_subjects WHERE faculty_id = %(id)s", {"id": faculty_id})
+            cur = conn.execute("DELETE FROM faculty WHERE id = %(id)s", {"id": faculty_id})
+    except psycopg.errors.ForeignKeyViolation:
+        raise ApiError(409, "This faculty member still has classes in the schedule. Remove or reassign them first.")
+    if cur.rowcount == 0:
+        raise ApiError(404, "Faculty member not found.")
+    return {"success": True, "message": "Faculty member deleted successfully."}
+
+
+# =================================================================== faculty_subjects
+FS_SELECT = """
+    SELECT fs.faculty_id, f.first_name || ' ' || f.last_name AS faculty, fs.subject_id, sub.code AS subject_code,
+           sub.name AS subject, fs.department_id, d.code AS department
+    FROM faculty_subjects fs JOIN faculty f ON f.id = fs.faculty_id
+    JOIN subjects sub ON sub.id = fs.subject_id JOIN departments d ON d.id = fs.department_id"""
+
+
+def faculty_subjects_list(conn, data, query, token):
+    where, params = ["TRUE"], {}
+    for key in ("faculty_id", "subject_id", "department_id"):
+        if _i(query, key):
+            where.append(f"fs.{key} = %({key})s"); params[key] = _i(query, key)
+    rows = all_rows(conn, f"{FS_SELECT} WHERE {' AND '.join(where)} ORDER BY f.last_name, sub.code, d.code", params)
+    return {"success": True, "faculty_subjects": rows}
+
+
+def faculty_subject_create(conn, data, query, token):
+    require_role(token, ["admin"])
+    keys = {k: _i(data, k) for k in ("faculty_id", "subject_id", "department_id")}
+    errors = [{"field": k, "message": f"{k.replace('_id', '').title()} is required."} for k, v in keys.items() if v <= 0]
+    if errors:
+        raise ApiError(422, REQUIRED_MSG, errors=errors)
+    try:
+        conn.execute("INSERT INTO faculty_subjects (faculty_id, subject_id, department_id) "
+                     "VALUES (%(faculty_id)s, %(subject_id)s, %(department_id)s)", keys)
+    except psycopg.errors.UniqueViolation:
+        raise ApiError(409, "This faculty member already handles this subject for that program.")
+    except psycopg.errors.ForeignKeyViolation:
+        raise ApiError(404, "The faculty member, subject or department does not exist.")
+    row = one(conn, f"{FS_SELECT} WHERE fs.faculty_id=%(faculty_id)s AND fs.subject_id=%(subject_id)s "
+                    f"AND fs.department_id=%(department_id)s", keys)
+    return {"success": True, "message": "Subject assigned to faculty member.", "faculty_subject": row}
+
+
+def faculty_subject_delete(conn, data, query, token, faculty_id, subject_id, department_id):
+    require_role(token, ["admin"])
+    cur = conn.execute("DELETE FROM faculty_subjects WHERE faculty_id=%(f)s AND subject_id=%(s)s AND department_id=%(d)s",
+                       {"f": faculty_id, "s": subject_id, "d": department_id})
+    if cur.rowcount == 0:
+        raise ApiError(404, "Assignment not found.")
+    return {"success": True, "message": "Subject removed from faculty member."}
+
+
+# =================================================================== section_rooms (get one)
+def section_room_get(conn, data, query, token, section_id):
+    row = one(conn, """SELECT s.id AS section_id, s.name AS section, r.id AS room_id, r.room_name AS room, r.building, r.floor
+                       FROM section_rooms sr JOIN sections s ON s.id = sr.section_id JOIN rooms r ON r.id = sr.room_id
+                       WHERE sr.section_id = %(s)s""", {"s": section_id})
+    if not row:
+        raise ApiError(404, "This section has no home room.")
+    return {"success": True, "section_room": row}
+
+
+# =================================================================== notifications (get one / update)
+NOTE_SELECT = """
+    SELECT n.id, n.kind, n.title, n.body, n.sender_id, n.sender_name, n.department_id, d.code AS program,
+           n.section_id, COALESCE(sec.name, 'All sections') AS section,
+           to_char(n.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS created_at,
+           (SELECT COUNT(*) FROM notification_reads r WHERE r.notification_id = n.id) AS read_count
+    FROM notifications n JOIN departments d ON d.id = n.department_id LEFT JOIN sections sec ON sec.id = n.section_id"""
+
+
+def notification_get(conn, data, query, token, notification_id):
+    tok = require_role(token, ["faculty", "admin", "student"])
+    row = one(conn, f"{NOTE_SELECT} WHERE n.id = %(id)s", {"id": notification_id})
+    if not row:
+        raise ApiError(404, "Notification not found.")
+    if tok["role"] == "student":
+        me = one(conn, """SELECT u.section_id, COALESCE(u.department_id, s.department_id) AS department_id
+                          FROM users u LEFT JOIN sections s ON s.id = u.section_id WHERE u.id = %(id)s""", {"id": tok["uid"]})
+        if not me or me["department_id"] != row["department_id"] or (row["section_id"] and row["section_id"] != me["section_id"]):
+            raise ApiError(404, "Notification not found.")
+    return {"success": True, "notification": row}
+
+
+def notification_update(conn, data, query, token, notification_id):
+    tok = require_role(token, ["faculty", "admin"])
+    title, body = _s(data, "title"), _s(data, "body")
+    kind = data.get("kind")
+    errors = [{"field": f, "message": m} for f, v, m in (("title", title, "Title is required."),
+                                                         ("body", body, "Message is required.")) if not v]
+    if errors:
+        raise ApiError(422, REQUIRED_MSG, errors=errors)
+    cur = conn.execute("""UPDATE notifications SET title=%(t)s, body=%(b)s, kind=COALESCE(%(k)s, kind)
+                          WHERE id=%(id)s AND (sender_id=%(me)s OR %(admin)s)""",
+                       {"t": title, "b": body, "k": kind if kind in ("transfer", "announcement") else None,
+                        "id": notification_id, "me": tok["uid"], "admin": tok["role"] == "admin"})
+    if cur.rowcount == 0:
+        raise ApiError(404, "Notification not found.")
+    return {"success": True, "message": "Notification updated.",
+            "notification": one(conn, f"{NOTE_SELECT} WHERE n.id = %(id)s", {"id": notification_id})}
+
+
+def notifications_all(conn, data, query, token):
+    """Admin/faculty view of the notifications table (filter by program or section)."""
+    require_role(token, ["faculty", "admin"])
+    where, params = ["TRUE"], {}
+    if _i(query, "department_id"):
+        where.append("n.department_id = %(d)s"); params["d"] = _i(query, "department_id")
+    if _i(query, "section_id"):
+        where.append("n.section_id = %(s)s"); params["s"] = _i(query, "section_id")
+    return {"success": True, "notifications": all_rows(conn, f"{NOTE_SELECT} WHERE {' AND '.join(where)} "
+                                                              f"ORDER BY n.created_at DESC LIMIT 200", params)}
+
+
+# =================================================================== notification_reads
+def notification_reads_list(conn, data, query, token):
+    require_role(token, ["faculty", "admin"])
+    where, params = ["TRUE"], {}
+    if _i(query, "notification_id"):
+        where.append("r.notification_id = %(n)s"); params["n"] = _i(query, "notification_id")
+    if _i(query, "user_id"):
+        where.append("r.user_id = %(u)s"); params["u"] = _i(query, "user_id")
+    rows = all_rows(conn, f"""
+        SELECT r.notification_id, n.title, r.user_id, u.last_name || ', ' || u.first_name AS student, s.name AS section,
+               to_char(r.read_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS read_at
+        FROM notification_reads r JOIN notifications n ON n.id = r.notification_id
+        JOIN users u ON u.id = r.user_id LEFT JOIN sections s ON s.id = u.section_id
+        WHERE {' AND '.join(where)} ORDER BY r.read_at DESC LIMIT 500""", params)
+    return {"success": True, "notification_reads": rows}
+
+
+def notification_read_delete(conn, data, query, token, notification_id, user_id):
+    """Marks a notification as unread again (removes the read record)."""
+    tok = require_role(token, ["student", "faculty", "admin"])
+    if tok["role"] == "student" and int(tok["uid"]) != user_id:
+        raise ApiError(403, "You do not have permission to do this.")
+    cur = conn.execute("DELETE FROM notification_reads WHERE notification_id=%(n)s AND user_id=%(u)s",
+                       {"n": notification_id, "u": user_id})
+    if cur.rowcount == 0:
+        raise ApiError(404, "Read record not found.")
+    return {"success": True, "message": "Notification marked as unread."}
+
+
+# =================================================================== password_tokens (admin only, no secrets)
+def password_tokens_list(conn, data, query, token):
+    require_role(token, ["admin"])
+    rows = all_rows(conn, """
+        SELECT t.id, t.user_id, u.email, t.created_at, t.expires_at, t.used_at,
+               CASE WHEN t.used_at IS NOT NULL THEN 'Used' WHEN t.expires_at < now() THEN 'Expired' ELSE 'Active' END AS status
+        FROM password_tokens t JOIN users u ON u.id = t.user_id ORDER BY t.created_at DESC LIMIT 200""")
+    return {"success": True, "password_tokens": rows}
+
+
+def password_token_delete(conn, data, query, token, token_id):
+    require_role(token, ["admin"])
+    cur = conn.execute("DELETE FROM password_tokens WHERE id = %(id)s", {"id": token_id})
+    if cur.rowcount == 0:
+        raise ApiError(404, "Setup link not found.")
+    return {"success": True, "message": "Setup link deleted."}

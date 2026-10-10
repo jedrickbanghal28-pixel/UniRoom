@@ -25,18 +25,21 @@ from .core import ApiError, connect, read_token, settings
 TAGS = [
     {"name": "user-auth", "description": "Sign in for the Android app (students and faculty) and password changes."},
     {"name": "admin-auth", "description": "Sign in for the admin website."},
-    {"name": "admin-management", "description": "Create, list, update and delete student and faculty accounts."},
     {"name": "dashboard", "description": "Counts and form options for the admin website."},
-    {"name": "departments", "description": "BS-IT, BS-MedTech and other programs."},
-    {"name": "sections", "description": "Sections of each program (e.g., BSIT-A1)."},
-    {"name": "rooms", "description": "Rooms of the Tech Hub."},
-    {"name": "subjects", "description": "Subjects / courses (e.g., ITE 031)."},
-    {"name": "faculty", "description": "Faculty records."},
-    {"name": "schedules", "description": "Class schedules with room, faculty and section conflict checking."},
-    {"name": "section-rooms", "description": "Home room of each section."},
-    {"name": "student-portal", "description": "Data the Android app shows to a student."},
-    {"name": "faculty-portal", "description": "Data the website shows to a faculty member."},
-    {"name": "notifications", "description": "Room changes and announcements from faculty to students."},
+    {"name": "users", "description": "Table **users** – student, faculty and admin accounts."},
+    {"name": "departments", "description": "Table **departments** – BS-IT, BS-MedTech and other programs."},
+    {"name": "sections", "description": "Table **sections** – sections of each program (e.g., BSIT-A1)."},
+    {"name": "rooms", "description": "Table **rooms** – rooms of the Tech Hub."},
+    {"name": "subjects", "description": "Table **subjects** – courses (e.g., ITE 031)."},
+    {"name": "faculty", "description": "Table **faculty** – faculty records (linked to a user account)."},
+    {"name": "faculty_subjects", "description": "Table **faculty_subjects** – which subjects each faculty member handles per program."},
+    {"name": "schedules", "description": "Table **schedules** – classes, with room, faculty and section conflict checking."},
+    {"name": "section_rooms", "description": "Table **section_rooms** – home room of each section."},
+    {"name": "notifications", "description": "Table **notifications** – room changes and announcements from faculty to students."},
+    {"name": "notification_reads", "description": "Table **notification_reads** – which student has read which notification."},
+    {"name": "password_tokens", "description": "Table **password_tokens** – one-time password setup links (admin only)."},
+    {"name": "student-portal", "description": "What the Android app shows a student."},
+    {"name": "faculty-portal", "description": "What the website shows a faculty member."},
     {"name": "default", "description": "Status check."},
 ]
 
@@ -204,6 +207,30 @@ class AssignRoomIn(Model):
     room_id: int
 
 
+class SectionRoomIn(Model):
+    section_id: int
+    room_id: int
+
+
+class FacultyIn(Model):
+    first_name: str = Field(..., examples=["Farah Diva"])
+    last_name: str = Field(..., examples=["Alvarado"])
+    email: Optional[str] = Field(None, examples=["f.alvarado@university.edu"])
+    user_id: Optional[int] = Field(None, description="Faculty user account (optional)")
+
+
+class FacultySubjectIn(Model):
+    faculty_id: int
+    subject_id: int
+    department_id: int
+
+
+class NotificationUpdateIn(Model):
+    title: str = Field(..., max_length=150)
+    body: str = Field(..., max_length=500)
+    kind: Optional[Literal["transfer", "announcement"]] = None
+
+
 class NotificationIn(Model):
     program: str = Field(..., examples=["BSIT"])
     section: str = Field("", description="Empty = all sections of the program", examples=["BSIT-A1"])
@@ -255,7 +282,7 @@ def admin_login(body: AdminLoginIn):
 
 
 # ------------------------------------------------------------------ admin-management
-@app.get("/api/admin/users", tags=["admin-management"], summary="List Users")
+@app.get("/api/admin/users", tags=["users"], summary="List Users")
 def list_users(role: Optional[str] = None, department: Optional[str] = Query(None, examples=["BSIT"]),
                section: Optional[str] = None, search: Optional[str] = None,
                sort: Literal["course", "surname", "email"] = "course", token=Token):
@@ -263,32 +290,32 @@ def list_users(role: Optional[str] = None, department: Optional[str] = Query(Non
     return run(svc.admin_users, query={k: v for k, v in q.items() if v}, token=token)
 
 
-@app.post("/api/admin/users", tags=["admin-management"], summary="Create User", status_code=200)
+@app.post("/api/admin/users", tags=["users"], summary="Create User", status_code=200)
 def create_user(body: UserIn, token=Token):
     return run(svc.admin_create_user, data=body_of(body), token=token)
 
 
-@app.post("/api/admin/users/bulk", tags=["admin-management"], summary="Bulk Create Users")
+@app.post("/api/admin/users/bulk", tags=["users"], summary="Bulk Create Users")
 def bulk_create_users(body: BulkIn, token=Token):
     return run(svc.admin_bulk_create_users, data=body_of(body), token=token)
 
 
-@app.get("/api/admin/users/{user_id}", tags=["admin-management"], summary="Get User")
+@app.get("/api/admin/users/{user_id}", tags=["users"], summary="Get User")
 def get_user(user_id: int = Path(..., ge=1), token=Token):
     return run(svc.admin_get_user, user_id, token=token)
 
 
-@app.put("/api/admin/users/{user_id}", tags=["admin-management"], summary="Update User")
+@app.put("/api/admin/users/{user_id}", tags=["users"], summary="Update User")
 def update_user(body: UserUpdateIn, user_id: int = Path(..., ge=1), token=Token):
     return run(svc.admin_update_user, user_id, data=body_of(body), token=token)
 
 
-@app.delete("/api/admin/users/{user_id}", tags=["admin-management"], summary="Delete User")
+@app.delete("/api/admin/users/{user_id}", tags=["users"], summary="Delete User")
 def delete_user(user_id: int = Path(..., ge=1), token=Token):
     return run(svc.admin_delete_user, user_id, token=token)
 
 
-@app.post("/api/admin/users/{user_id}/resend", tags=["admin-management"], summary="Resend Account Email")
+@app.post("/api/admin/users/{user_id}/resend", tags=["users"], summary="Resend Account Email")
 def resend_invite(user_id: int = Path(..., ge=1), body: Optional[ResendIn] = None, token=Token):
     return run(svc.admin_resend_invite, data={**body_of(body or ResendIn()), "user_id": user_id}, token=token)
 
@@ -419,9 +446,44 @@ def list_faculty():
     return run(svc.faculty_list)
 
 
+@app.post("/api/faculty", tags=["faculty"], summary="Create Faculty")
+def create_faculty(body: FacultyIn, token=Token):
+    return run(svc.faculty_save, data=body_of(body), token=token)
+
+
 @app.get("/api/faculty/{faculty_id}", tags=["faculty"], summary="Get Faculty")
 def get_faculty(faculty_id: int = Path(..., ge=1)):
     return run(svc.faculty_get, faculty_id)
+
+
+@app.put("/api/faculty/{faculty_id}", tags=["faculty"], summary="Update Faculty")
+def update_faculty(body: FacultyIn, faculty_id: int = Path(..., ge=1), token=Token):
+    return run(svc.faculty_save, faculty_id, data=body_of(body), token=token)
+
+
+@app.delete("/api/faculty/{faculty_id}", tags=["faculty"], summary="Delete Faculty")
+def delete_faculty(faculty_id: int = Path(..., ge=1), token=Token):
+    return run(svc.faculty_delete, faculty_id, token=token)
+
+
+# ------------------------------------------------------------------ faculty_subjects
+@app.get("/api/faculty-subjects", tags=["faculty_subjects"], summary="List Faculty Subjects")
+def list_faculty_subjects(faculty_id: Optional[int] = None, subject_id: Optional[int] = None,
+                          department_id: Optional[int] = None):
+    q = {"faculty_id": faculty_id, "subject_id": subject_id, "department_id": department_id}
+    return run(svc.faculty_subjects_list, query={k: v for k, v in q.items() if v})
+
+
+@app.post("/api/faculty-subjects", tags=["faculty_subjects"], summary="Assign Subject to Faculty")
+def create_faculty_subject(body: FacultySubjectIn, token=Token):
+    return run(svc.faculty_subject_create, data=body_of(body), token=token)
+
+
+@app.delete("/api/faculty-subjects/{faculty_id}/{subject_id}/{department_id}", tags=["faculty_subjects"],
+            summary="Remove Subject from Faculty")
+def delete_faculty_subject(faculty_id: int = Path(..., ge=1), subject_id: int = Path(..., ge=1),
+                           department_id: int = Path(..., ge=1), token=Token):
+    return run(svc.faculty_subject_delete, faculty_id, subject_id, department_id, token=token)
 
 
 # ------------------------------------------------------------------ schedules
@@ -460,17 +522,28 @@ def delete_schedule(schedule_id: int = Path(..., ge=1), token=Token):
 
 
 # ------------------------------------------------------------------ section-rooms
-@app.get("/api/section-rooms", tags=["section-rooms"], summary="List Home Rooms")
+@app.get("/api/section-rooms", tags=["section_rooms"], summary="List Home Rooms")
 def list_section_rooms():
     return run(svc.section_rooms_list)
 
 
-@app.put("/api/section-rooms/{section_id}", tags=["section-rooms"], summary="Assign Home Room")
+@app.post("/api/section-rooms", tags=["section_rooms"], summary="Create Home Room")
+def create_section_room(body: SectionRoomIn):
+    data = body_of(body)
+    return run(svc.assign_room, int(data["section_id"]), data=data)
+
+
+@app.get("/api/section-rooms/{section_id}", tags=["section_rooms"], summary="Get Home Room")
+def get_section_room(section_id: int = Path(..., ge=1)):
+    return run(svc.section_room_get, section_id)
+
+
+@app.put("/api/section-rooms/{section_id}", tags=["section_rooms"], summary="Assign Home Room")
 def assign_home_room(body: AssignRoomIn, section_id: int = Path(..., ge=1)):
     return run(svc.assign_room, section_id, data=body_of(body))
 
 
-@app.delete("/api/section-rooms/{section_id}", tags=["section-rooms"], summary="Remove Home Room")
+@app.delete("/api/section-rooms/{section_id}", tags=["section_rooms"], summary="Remove Home Room")
 def remove_home_room(section_id: int = Path(..., ge=1), token=Token):
     return run(svc.unassign_room, section_id, token=token)
 
@@ -528,6 +601,22 @@ def sent_notifications(token=Token):
     return run(svc.notifications_sent, token=token)
 
 
+@app.get("/api/notifications/all", tags=["notifications"], summary="List All Notifications (admin/faculty)")
+def all_notifications(department_id: Optional[int] = None, section_id: Optional[int] = None, token=Token):
+    q = {"department_id": department_id, "section_id": section_id}
+    return run(svc.notifications_all, query={k: v for k, v in q.items() if v}, token=token)
+
+
+@app.get("/api/notifications/{notification_id}", tags=["notifications"], summary="Get Notification")
+def get_notification(notification_id: int = Path(..., ge=1), token=Token):
+    return run(svc.notification_get, notification_id, token=token)
+
+
+@app.put("/api/notifications/{notification_id}", tags=["notifications"], summary="Update Notification (sender)")
+def update_notification(body: NotificationUpdateIn, notification_id: int = Path(..., ge=1), token=Token):
+    return run(svc.notification_update, notification_id, data=body_of(body), token=token)
+
+
 @app.post("/api/notifications/read-all", tags=["notifications"], summary="Mark All as Read")
 def read_all(token=Token):
     return run(svc.notifications_read, data={"all": True}, token=token)
@@ -541,6 +630,35 @@ def read_one(notification_id: int = Path(..., ge=1), token=Token):
 @app.delete("/api/notifications/{notification_id}", tags=["notifications"], summary="Delete Notification")
 def delete_notification(notification_id: int = Path(..., ge=1), token=Token):
     return run(svc.notification_delete, notification_id, token=token)
+
+
+# ------------------------------------------------------------------ notification_reads
+@app.get("/api/notification-reads", tags=["notification_reads"], summary="List Read Records")
+def list_notification_reads(notification_id: Optional[int] = None, user_id: Optional[int] = None, token=Token):
+    q = {"notification_id": notification_id, "user_id": user_id}
+    return run(svc.notification_reads_list, query={k: v for k, v in q.items() if v}, token=token)
+
+
+@app.post("/api/notification-reads", tags=["notification_reads"], summary="Create Read Record (mark as read)")
+def create_notification_read(body: dict, token=Token):
+    return run(svc.notifications_read, data={"id": body.get("notification_id")}, token=token)
+
+
+@app.delete("/api/notification-reads/{notification_id}/{user_id}", tags=["notification_reads"],
+            summary="Delete Read Record (mark as unread)")
+def delete_notification_read(notification_id: int = Path(..., ge=1), user_id: int = Path(..., ge=1), token=Token):
+    return run(svc.notification_read_delete, notification_id, user_id, token=token)
+
+
+# ------------------------------------------------------------------ password_tokens
+@app.get("/api/password-tokens", tags=["password_tokens"], summary="List Setup Links (admin)")
+def list_password_tokens(token=Token):
+    return run(svc.password_tokens_list, token=token)
+
+
+@app.delete("/api/password-tokens/{token_id}", tags=["password_tokens"], summary="Delete Setup Link (admin)")
+def delete_password_token(token_id: int = Path(..., ge=1), token=Token):
+    return run(svc.password_token_delete, token_id, token=token)
 
 
 # ------------------------------------------------------------------ old PHP addresses
