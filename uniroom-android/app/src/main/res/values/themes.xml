@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Student theme (blue). Used by default and on the login screen. -->
+    <style name="Theme.UniRoom" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="uniPrimary">@color/primary_student</item>
+        <item name="uniPrimarySoft">@color/primary_soft_student</item>
+        <item name="uniPrimaryTint">@color/primary_tint_student</item>
+
+        <item name="android:colorPrimary">?attr/uniPrimary</item>
+        <item name="android:colorAccent">?attr/uniPrimary</item>
+        <item name="android:colorControlActivated">?attr/uniPrimary</item>
+        <item name="android:colorControlHighlight">#14111827</item>
+        <item name="android:textColorHighlight">?attr/uniPrimarySoft</item>
+        <item name="android:windowBackground">@color/canvas</item>
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:textViewStyle">@style/T.Body</item>
+        <item name="android:editTextStyle">@style/Field.Input</item>
+    </style>
+
+    <!-- Faculty theme (maroon). Everything else stays the same. -->
+    <style name="Theme.UniRoom.Faculty">
+        <item name="uniPrimary">@color/primary_faculty</item>
+        <item name="uniPrimarySoft">@color/primary_soft_faculty</item>
+        <item name="uniPrimaryTint">@color/primary_tint_faculty</item>
+    </style>
+
+    <!-- Dark full-screen theme for the room photo viewer. -->
+    <style name="Theme.UniRoom.Viewer">
+        <item name="android:windowBackground">@color/ink</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+    <style name="Theme.UniRoom.Faculty.Viewer">
+        <item name="android:windowBackground">@color/ink</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <!-- Bottom sheet dialog. It has no parent on purpose: it is laid on top of the screen's own
+         theme, so the student (blue) or faculty (maroon) colours stay the same inside the sheet. -->
+    <style name="SheetOverlay">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.4</item>
+        <item name="android:windowAnimationStyle">@style/SheetAnimation</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
+
+    <style name="SheetAnimation">
+        <item name="android:windowEnterAnimation">@anim/sheet_in</item>
+        <item name="android:windowExitAnimation">@anim/sheet_out</item>
+    </style>
+</resources>

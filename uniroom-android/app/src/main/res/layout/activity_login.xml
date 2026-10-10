@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/login_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/uniPrimary"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Blue header with the logo -->
+            <LinearLayout
+                android:id="@+id/login_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingTop="32dp"
+                android:paddingBottom="40dp">
+
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:background="@drawable/bg_round_16"
+                    android:importantForAccessibility="no"
+                    android:padding="17dp"
+                    android:src="@drawable/ic_door_open"
+                    android:tint="?attr/uniPrimary" />
+
+                <TextView
+                    style="@style/T.Brand"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="UniRoom" />
+
+                <TextView
+                    style="@style/T.SmallInk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Smart University Room Planner"
+                    android:textColor="@color/white_75" />
+            </LinearLayout>
+
+            <!-- White sheet with the form -->
+            <LinearLayout
+                android:id="@+id/login_sheet"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_sheet"
+                android:orientation="vertical"
+                android:paddingStart="24dp"
+                android:paddingTop="32dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="24dp">
+
+                <TextView
+                    style="@style/T.Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Welcome back"
+                    android:textSize="20sp" />
+
+                <TextView
+                    style="@style/T.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Students and faculty sign in here." />
+
+                <include
+                    android:id="@+id/field_username"
+                    layout="@layout/view_text_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp" />
+
+                <include
+                    android:id="@+id/field_password"
+                    layout="@layout/view_text_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp" />
+
+                <!-- Error message -->
+                <LinearLayout
+                    android:id="@+id/login_error"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_danger_banner"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="12dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="10dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_circle_alert"
+                        android:tint="@color/danger" />
+
+                    <TextView
+                        android:id="@+id/login_error_text"
+                        style="@style/T.SmallInk"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:accessibilityLiveRegion="assertive"
+                        android:textColor="@color/danger" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btn_sign_in"
+                    style="@style/Btn.Primary"
+                    android:layout_marginTop="24dp">
+
+                    <ProgressBar
+                        android:id="@+id/sign_in_spinner"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginEnd="8dp"
+                        android:indeterminateTint="@color/white"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sign_in_label"
+                        style="@style/BtnText.Primary"
+                        android:text="Sign in" />
+                </LinearLayout>
+
+                <!-- Accounts are created by the school administrator (no self sign-up). -->
+                <TextView
+                    style="@style/T.Small"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:gravity="center"
+                    android:text="Your account is created by the school administrator. Check your email for your username and temporary password." />
+
+                <TextView
+                    style="@style/T.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:text="Faculty accounts are set up by the registrar." />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:minHeight="40dp" />
+
+                <TextView
+                    style="@style/T.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="BS-IT · BS-MedTech · First Year" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

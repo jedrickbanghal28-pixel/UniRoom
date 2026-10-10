@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A labelled text input. Used with <include> and the FormField class. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/field_label"
+        style="@style/Field.Label" />
+
+    <LinearLayout
+        android:id="@+id/field_box"
+        style="@style/Field.Box">
+
+        <ImageView
+            android:id="@+id/field_icon"
+            style="@style/Field.Icon"
+            android:importantForAccessibility="no"
+            android:visibility="gone" />
+
+        <EditText
+            android:id="@+id/field_input"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:importantForAutofill="no"
+            android:inputType="text" />
+
+        <ImageView
+            android:id="@+id/field_toggle"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/ripple_circle"
+            android:contentDescription="Show password"
+            android:padding="6dp"
+            android:src="@drawable/ic_eye"
+            android:tint="@color/muted"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/field_error"
+        style="@style/Field.Error" />
+</LinearLayout>

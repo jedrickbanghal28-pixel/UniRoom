@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Faculty buttons at the bottom of the room detail sheet -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/btn_send_update"
+        style="@style/Btn.Primary">
+
+        <ImageView
+            style="@style/BtnIcon"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_send"
+            android:tint="@color/white" />
+
+        <TextView
+            style="@style/BtnText.Primary"
+            android:text="Send room update" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/btn_remove_room"
+        style="@style/Btn.Danger"
+        android:layout_marginTop="10dp">
+
+        <ImageView
+            style="@style/BtnIcon"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_trash"
+            android:tint="@color/danger" />
+
+        <TextView
+            style="@style/BtnText.Danger"
+            android:text="Remove from my rooms" />
+    </LinearLayout>
+</LinearLayout>

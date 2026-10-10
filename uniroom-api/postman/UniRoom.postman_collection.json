@@ -1,0 +1,473 @@
+{
+  "info": {
+    "name": "UniRoom API",
+    "description": "Endpoints of the UniRoom PHP API (https://uniroom-api.vercel.app/api). Sign in first and paste the returned token into the admin_token, faculty_token or student_token variable.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://uniroom-api.vercel.app/api"
+    },
+    {
+      "key": "admin_token",
+      "value": ""
+    },
+    {
+      "key": "faculty_token",
+      "value": ""
+    },
+    {
+      "key": "student_token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "UC-01 Create User Account",
+      "item": [
+        {
+          "name": "Admin login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin_login.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin_login.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.edu\",\n  \"password\": \"your-password\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create one account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin_create_user.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin_create_user.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Carlo\",\n  \"last_name\": \"Reyes\",\n  \"email\": \"carlo.reyes@example.edu\",\n  \"gender\": \"Male\",\n  \"age\": 19,\n  \"role\": \"student\",\n  \"department\": \"BSIT\",\n  \"section\": \"BSIT-A1\",\n  \"student_id\": \"2026-0101\",\n  \"password_mode\": \"temporary\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Bulk create accounts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin_bulk_create_users.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin_bulk_create_users.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password_mode\": \"temporary\",\n  \"rows\": [\n    {\n      \"row\": 2,\n      \"first_name\": \"Ana\",\n      \"last_name\": \"Cruz\",\n      \"email\": \"ana.cruz@example.edu\",\n      \"gender\": \"Female\",\n      \"age\": \"20\",\n      \"role\": \"student\",\n      \"department\": \"BSMT\",\n      \"section\": \"BSMT-A1\",\n      \"student_id\": \"2026-0102\"\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "List users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin_users.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin_users.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Students of a department",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin_department_students.php?department_id=1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin_department_students.php"
+              ],
+              "query": [
+                {
+                  "key": "department_id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "UC-02 Manage Class Schedule",
+      "item": [
+        {
+          "name": "Schedule form options",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/schedule_options.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "schedule_options.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add schedule (conflict check)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/add_schedule.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "add_schedule.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"section_id\": 1,\n  \"subject_id\": 1,\n  \"faculty_id\": 1,\n  \"room_id\": 1,\n  \"day_of_week\": \"Tuesday\",\n  \"start_time\": \"08:00\",\n  \"end_time\": \"10:00\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "UC-03 View Class Schedule and Room",
+      "item": [
+        {
+          "name": "Mobile login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/login.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "login.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"carlo.reyes\",\n  \"password\": \"temporary-or-own-password\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Change temporary password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/change_password.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "change_password.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"carlo.reyes\",\n  \"current_password\": \"temporary-password\",\n  \"new_password\": \"NewPass2026\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Section schedule",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/schedule.php?user_id=1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "schedule.php"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Home room",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/student_room.php?user_id=1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "student_room.php"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Rooms",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rooms.php?search=TH",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms.php"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "TH"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "UC-04 Send Room Notification",
+      "item": [
+        {
+          "name": "Send notification (faculty)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{faculty_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notify_send.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notify_send.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"program\": \"BSIT\",\n  \"section\": \"BSIT-A1\",\n  \"kind\": \"transfer\",\n  \"title\": \"Room change: TH 309 → TH 310\",\n  \"body\": \"Your class moves to TH 310 starting today. Same time.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "My notifications (student)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notifications.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark one as read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notifications_read.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications_read.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Mark all as read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notifications_read.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications_read.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"all\": true\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "API status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health.php"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

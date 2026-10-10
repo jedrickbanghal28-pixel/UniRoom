@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Next class" card on both home screens (NextClassCard class fills it in). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/next_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_card_xl"
+    android:elevation="6dp"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <!-- Shown when there is an upcoming class -->
+    <LinearLayout
+        android:id="@+id/next_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/T.MetaSemi"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Next class"
+                android:textColor="@color/muted" />
+
+            <TextView
+                android:id="@+id/next_relative"
+                style="@style/T.CaptionSemi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_pill"
+                android:backgroundTint="?attr/uniPrimarySoft"
+                android:paddingStart="10dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="4dp"
+                android:textColor="?attr/uniPrimary" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/next_title"
+            style="@style/T.Heading2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:id="@+id/next_code"
+            style="@style/T.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/inter_medium" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_canvas_16"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/T.Tiny"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Room" />
+
+                <TextView
+                    android:id="@+id/next_room"
+                    style="@style/T.Display"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="?attr/uniPrimary"
+                    android:textSize="24sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@color/line" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/next_time"
+                    style="@style/T.MetaInk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_clock_sm"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@color/muted"
+                    android:gravity="center_vertical" />
+
+                <TextView
+                    android:id="@+id/next_building"
+                    style="@style/T.MetaInk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:drawableStart="@drawable/ic_map_pin_sm"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@color/muted"
+                    android:gravity="center_vertical" />
+
+                <TextView
+                    android:id="@+id/next_person"
+                    style="@style/T.MetaInk"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@color/muted"
+                    android:ellipsize="end"
+                    android:gravity="center_vertical"
+                    android:singleLine="true" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Shown when there are no more classes -->
+    <LinearLayout
+        android:id="@+id/done_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/done_label"
+            style="@style/T.MetaSemi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/uniPrimary" />
+
+        <TextView
+            android:id="@+id/done_title"
+            style="@style/T.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+
+    <!-- Students only: "View full schedule" -->
+    <LinearLayout
+        android:id="@+id/btn_full_schedule"
+        style="@style/Btn.Secondary"
+        android:layout_marginTop="16dp"
+        android:visibility="gone">
+
+        <TextView
+            style="@style/BtnText.Secondary"
+            android:text="View full schedule" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand colours. They change between the student theme (blue) and faculty theme (maroon). -->
+    <attr name="uniPrimary" format="color" />
+    <attr name="uniPrimarySoft" format="color" />
+    <attr name="uniPrimaryTint" format="color" />
+
+    <declare-styleable name="MaxHeightLinearLayout">
+        <attr name="maxHeightRatio" format="float" />
+    </declare-styleable>
+</resources>

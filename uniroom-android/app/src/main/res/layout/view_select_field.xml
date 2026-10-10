@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A labelled drop-down. Tapping it opens a bottom sheet with the options (SelectField class). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/field_label"
+        style="@style/Field.Label" />
+
+    <LinearLayout
+        android:id="@+id/field_box"
+        style="@style/Field.Box"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="@drawable/ripple_round_16">
+
+        <TextView
+            android:id="@+id/field_value"
+            style="@style/T.Body"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:singleLine="true" />
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginStart="6dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_chevron_down"
+            android:tint="@color/muted" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/field_error"
+        style="@style/Field.Error" />
+</LinearLayout>
