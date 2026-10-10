@@ -64,10 +64,12 @@ $requiredFields = [
     'student_id',
     'username',
     'email',
-    'contact_number',
+    'gender',
+    'age',
     'password',
     'section_id'
 ];
+// contact_number is optional (same as the admin website).
 
 foreach ($requiredFields as $field) {
 
@@ -105,6 +107,37 @@ if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
         'message' => 'Invalid email address.'
     ]);
 
+    exit;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Validate Gender and Age
+|--------------------------------------------------------------------------
+*/
+
+$genderMap = ['male' => 'Male', 'm' => 'Male', 'female' => 'Female', 'f' => 'Female',
+              'prefer not to say' => 'Prefer not to say'];
+$gender = $genderMap[strtolower(trim((string)$data['gender']))] ?? null;
+
+if ($gender === null) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Gender must be Male, Female or Prefer not to say.'
+    ]);
+    exit;
+}
+
+$age = filter_var($data['age'], FILTER_VALIDATE_INT);
+
+if ($age === false || $age < 15 || $age > 100) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Age must be a whole number from 15 to 100.'
+    ]);
     exit;
 }
 
@@ -226,6 +259,8 @@ try {
             password_hash,
             section_id,
             department_id,
+            gender,
+            age,
             role
         )
         VALUES (
@@ -238,6 +273,8 @@ try {
             :password_hash,
             :section_id,
             :department_id,
+            :gender,
+            :age,
             'student'
         )
         RETURNING id
@@ -262,7 +299,8 @@ try {
             trim($data['email']),
 
         ':contact_number' =>
-            trim($data['contact_number']),
+            trim((string)($data['contact_number'] ?? '')) === ''
+                ? null : trim($data['contact_number']),
 
         ':password_hash' =>
             password_hash(
@@ -274,7 +312,11 @@ try {
             (int)$data['section_id'],
 
         ':department_id' =>
-            $sectionRow ? (int)$sectionRow['department_id'] : null
+            $sectionRow ? (int)$sectionRow['department_id'] : null,
+
+        ':gender' => $gender,
+
+        ':age' => $age
     ]);
 
 
