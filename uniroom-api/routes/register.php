@@ -28,6 +28,31 @@ header("Content-Type: application/json");
 $data = body();
 
 /*
+| The Android app sends the section name ("BSIT-A1", "BSMT-A2"). Turn it
+| into section_id + department_id so the student lands in the right program.
+*/
+$sectionRow = null;
+try {
+    if (trim((string)($data['section_id'] ?? '')) !== '') {
+        $q = $pdo->prepare('SELECT id, department_id FROM sections WHERE id = :v');
+        $q->execute([':v' => (int)$data['section_id']]);
+    } else {
+        $q = $pdo->prepare('SELECT id, department_id FROM sections WHERE lower(name) = lower(:v)');
+        $q->execute([':v' => trim((string)($data['section_name'] ?? ($data['section'] ?? '')))]);
+    }
+    $sectionRow = $q->fetch(PDO::FETCH_ASSOC) ?: null;
+} catch (PDOException $e) {
+    $sectionRow = null;
+}
+if ($sectionRow) {
+    $data['section_id'] = (int)$sectionRow['id'];
+} elseif (trim((string)($data['section_name'] ?? ($data['section'] ?? $data['section_id'] ?? ''))) !== '') {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'That section does not exist.']);
+    exit;
+}
+
+/*
 |--------------------------------------------------------------------------
 | Required Fields
 |--------------------------------------------------------------------------
@@ -90,13 +115,15 @@ if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
 |--------------------------------------------------------------------------
 */
 
-if (strlen($data['password']) < 6) {
+if (strlen($data['password']) < 8
+    || !preg_match('/[A-Za-z]/', $data['password'])
+    || !preg_match('/[0-9]/', $data['password'])) {
 
     http_response_code(400);
 
     echo json_encode([
         'success' => false,
-        'message' => 'Password must be at least 6 characters.'
+        'message' => 'Password must be at least 8 characters with letters and numbers.'
     ]);
 
     exit;
@@ -198,6 +225,7 @@ try {
             contact_number,
             password_hash,
             section_id,
+            department_id,
             role
         )
         VALUES (
@@ -209,6 +237,7 @@ try {
             :contact_number,
             :password_hash,
             :section_id,
+            :department_id,
             'student'
         )
         RETURNING id
@@ -242,7 +271,10 @@ try {
             ),
 
         ':section_id' =>
-            (int)$data['section_id']
+            (int)$data['section_id'],
+
+        ':department_id' =>
+            $sectionRow ? (int)$sectionRow['department_id'] : null
     ]);
 
 
@@ -280,8 +312,7 @@ try {
 
     echo json_encode([
         'success' => false,
-        'message' => 'Registration failed.',
-        'error' => $e->getMessage()
+        'message' => 'Registration failed. Please try again.'
     ]);
 }
 
