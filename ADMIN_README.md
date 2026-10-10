@@ -81,14 +81,15 @@ The whole API runs as **one** serverless function (`api/index.php`), because Ver
 
 ## 5. Android app (students and faculty)
 
-The app in `app/` now uses the same API as the website: `https://uniroom-api.vercel.app/api/` (set in `app/src/main/java/com/example/uniroom/network/Client.java`).
+The app uses the same API as the website: `https://uniroom-api.vercel.app/api/`.
 
-1. In Supabase, open **SQL Editor** and run `uniroom-api/sql/04_section_rooms.sql`. This gives each section a home room (BSIT-A1 → TH 308, BSMT-A1 → TH 305, BSMT-A2 → TH 306), so the student dashboard can show **My Room**.
-2. In Android Studio, open the project, click **Sync Project with Gradle Files** and run the app.
-3. A student whose account the admin created (BSIT or BSMEDTECH) logs in with their **email or username**:
-   - **Setup link:** they set their password on the website first, then log in to the app.
-   - **Temporary password:** they log in with it, and the app asks them to choose a new password before the dashboard opens.
-4. After login the app shows the student's program and section, assigned room, class schedule, profile and Find Room.
+1. In Supabase, open **SQL Editor** and run these two files:
+   - `uniroom-api/sql/04_section_rooms.sql`: gives each section a home room for "My Room".
+   - `uniroom-api/sql/05_notifications.sql`: creates the notification tables. **This one is required** for faculty → student notifications.
+2. **There is no sign-up in the app.** Create every account on the admin website (Account Creation). **Username and temporary password** is selected by default, so the email shows the user's username and temporary password.
+3. The user signs in to the app with that username (or email) and the temporary password. The app then makes them choose their own password before the dashboard opens.
+4. **Faculty** use *Notify a section* to send a room change or an announcement to one section or to all sections of a course. **Students** of that course and section see it under Notifications and get a phone notification.
+5. The three faculty accounts from `03_faculty_and_subjects.sql` start with the temporary password `UniRoom2026`.
 
 ## 6. Running everything on your computer
 

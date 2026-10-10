@@ -334,11 +334,14 @@ function send_account_email(Mailer $mailer, array $user, array $lookup, ?string 
             . $e($setupLink) . '</p>';
         $actionText = "Set your password (link works once, expires in $hours hours):\n$setupLink\n";
     } else {
-        $actionHtml = '<p>Your temporary password is:</p>'
+        $where = $user['role'] === 'student' ? 'the UNIROOM mobile app' : 'UNIROOM';
+        $actionHtml = '<p>Sign in to ' . $where . ' with your username <strong>' . $e($user['username'])
+            . '</strong> (or your email) and this temporary password:</p>'
             . '<p style="font-size:20px;font-weight:bold;letter-spacing:1px;background:#f8e9ed;padding:10px 14px;'
             . 'border-radius:6px;display:inline-block">' . $e($temporaryPassword) . '</p>'
             . '<p><strong>You will be asked to change this password the first time you log in.</strong></p>';
-        $actionText = "Temporary password: $temporaryPassword\nYou will be asked to change it the first time you log in.\n";
+        $actionText = "Sign in to $where with your username ({$user['username']}) or email.\n"
+            . "Temporary password: $temporaryPassword\nYou will be asked to change it the first time you log in.\n";
     }
 
     $html = '<div style="font-family:Arial,Helvetica,sans-serif;color:#202124;max-width:560px">'

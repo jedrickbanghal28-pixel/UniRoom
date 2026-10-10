@@ -34,7 +34,13 @@ try {
             ON d.id = u.department_id
         LEFT JOIN departments ds
             ON ds.id = s.department_id
-        ORDER BY u.id ASC
+        -- Course, then section, then surname (A–Z), first name and email.
+        -- Accounts without a course (admins) come last.
+        ORDER BY COALESCE(d.code, ds.code) NULLS LAST,
+                 s.name NULLS LAST,
+                 lower(u.last_name),
+                 lower(u.first_name),
+                 lower(u.email)
     ");
 
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);

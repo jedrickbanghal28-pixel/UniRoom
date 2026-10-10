@@ -15,6 +15,7 @@ try {
         SELECT
             d.id,
             d.code,
+            d.name,
             COUNT(DISTINCT s.id) AS sections,
             COUNT(DISTINCT CASE
                 WHEN u.role = 'student' THEN u.id
@@ -24,7 +25,8 @@ try {
             ON s.department_id = d.id
         LEFT JOIN users u
             ON u.section_id = s.id
-        GROUP BY d.id, d.code
+           AND u.role = 'student'
+        GROUP BY d.id, d.code, d.name
         ORDER BY d.code ASC
     ");
 
