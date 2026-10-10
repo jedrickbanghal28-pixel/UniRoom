@@ -53,6 +53,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
         String program = session.preferencesProgram();
         String section = session.preferencesSection();
         if (section != null && !section.isEmpty()) {
+            if ("BSMT".equalsIgnoreCase(program)) program = "BSMEDTECH";
             sectionText.setText((program == null || program.isEmpty() ? "" : program + " • ") + section);
         }
 

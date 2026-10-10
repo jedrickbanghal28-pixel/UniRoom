@@ -79,11 +79,16 @@ The whole API runs as **one** serverless function (`api/index.php`), because Ver
 2. In Vercel, click **Add New → Project**, pick the repository and set **Root Directory** to `uniroom-admin`. Framework preset: **Other**. No build command.
 3. Deploy. If your website URL differs from what you put in `ADMIN_WEB_URL` / `ALLOWED_ORIGINS`, update those two variables in the API project and redeploy the API.
 
-## 5. Mobile app (if it uses this API)
+## 5. Android app (students and faculty)
 
-- `login.php` now also returns `must_change_password`. When it is `true`, show a "change password" screen. That screen should call `change_password.php` with `{ login, current_password, new_password }`.
-- Students who received a **setup link** set their password on the website page `set-password.html`, then log in to the app normally.
-- If the app calls the API from Android, CORS does not apply. Nothing else changes for the app.
+The app in `app/` now uses the same API as the website: `https://uniroom-api.vercel.app/api/` (set in `app/src/main/java/com/example/uniroom/network/Client.java`).
+
+1. In Supabase, open **SQL Editor** and run `uniroom-api/sql/04_section_rooms.sql`. This gives each section a home room (BSIT-A1 → TH 308, BSMT-A1 → TH 305, BSMT-A2 → TH 306), so the student dashboard can show **My Room**.
+2. In Android Studio, open the project, click **Sync Project with Gradle Files** and run the app.
+3. A student whose account the admin created (BSIT or BSMEDTECH) logs in with their **email or username**:
+   - **Setup link:** they set their password on the website first, then log in to the app.
+   - **Temporary password:** they log in with it, and the app asks them to choose a new password before the dashboard opens.
+4. After login the app shows the student's program and section, assigned room, class schedule, profile and Find Room.
 
 ## 6. Running everything on your computer
 

@@ -17,6 +17,8 @@ if ($username === '' || $password === '') {
 }
 
 try {
+    // Section and program come along so the Android app can show
+    // "BSIT • BSIT-A1" / "BSMT • BSMT-A1" right after login.
     $stmt = $pdo->prepare("
         SELECT
             u.id,
@@ -24,10 +26,17 @@ try {
             u.email,
             u.first_name,
             u.last_name,
+            u.student_id,
+            u.contact_number,
             u.role,
+            u.section_id,
+            s.name AS section_name,
+            d.code AS program,
             u.must_change_password,
             u.password_hash
         FROM users u
+        LEFT JOIN sections s ON s.id = u.section_id
+        LEFT JOIN departments d ON d.id = COALESCE(u.department_id, s.department_id)
         WHERE lower(u.username) = lower(:login)
            OR lower(u.email) = lower(:login)
         LIMIT 1
@@ -55,6 +64,7 @@ try {
     // true = the user logged in with a temporary password and must pick a
     // new one (call change_password.php) before continuing.
     $user['must_change_password'] = (bool) $user['must_change_password'];
+    $user['section_id'] = $user['section_id'] === null ? 0 : (int) $user['section_id'];
 
     echo json_encode([
         'success' => true,
