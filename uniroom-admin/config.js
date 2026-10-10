@@ -11,5 +11,5 @@
 ===================================================== */
 
 window.UNIROOM_CONFIG = {
-    API_BASE_URL: "http://localhost:8000/api"
+       API_BASE_URL: "https://uniroom-api.vercel.app/api"
 };
