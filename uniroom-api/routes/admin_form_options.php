@@ -3,8 +3,8 @@
  * Departments and sections for the Account Creation form (admin only).
  * GET → { departments: [...], sections: [...], email_configured: bool }
  */
-require_once __DIR__ . '/_lib/db.php';
-require_once __DIR__ . '/_lib/accounts.php';
+require_once __DIR__ . '/../lib/db.php';
+require_once __DIR__ . '/../lib/accounts.php';
 
 require_role(['admin']);
 

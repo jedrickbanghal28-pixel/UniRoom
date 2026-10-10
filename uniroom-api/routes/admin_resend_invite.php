@@ -5,8 +5,8 @@
  *
  * POST { user_id, password_mode: "link" | "temporary" }
  */
-require_once __DIR__ . '/_lib/db.php';
-require_once __DIR__ . '/_lib/accounts.php';
+require_once __DIR__ . '/../lib/db.php';
+require_once __DIR__ . '/../lib/accounts.php';
 
 require_role(['admin']);
 $data = body();

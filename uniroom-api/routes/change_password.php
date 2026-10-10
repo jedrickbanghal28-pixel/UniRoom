@@ -5,8 +5,8 @@
  *
  * POST { login (email or username), current_password, new_password }
  */
-require_once __DIR__ . '/_lib/db.php';
-require_once __DIR__ . '/_lib/accounts.php';
+require_once __DIR__ . '/../lib/db.php';
+require_once __DIR__ . '/../lib/accounts.php';
 
 $data = body();
 $login = trim((string) ($data['login'] ?? ($data['email'] ?? '')));

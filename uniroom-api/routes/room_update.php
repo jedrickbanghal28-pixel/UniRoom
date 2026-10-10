@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/_lib/db.php';
+require_once __DIR__ . '/../lib/db.php';
 $d=body();
 foreach(['id','room_name','building','floor','capacity','status'] as $f) if(!isset($d[$f])||trim((string)$d[$f])===''){http_response_code(400);echo json_encode(['success'=>false,'message'=>ucwords(str_replace('_',' ',$f)).' is required.']);exit;}
 $floor=(int)$d['floor'];$capacity=(int)$d['capacity'];$status=trim($d['status']);
