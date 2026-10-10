@@ -5,8 +5,8 @@
  * GET  ?token=...                    → check the link, returns the user's name/email
  * POST { token, new_password }       → saves the password
  */
-require_once __DIR__ . '/_lib/db.php';
-require_once __DIR__ . '/_lib/accounts.php';
+require_once __DIR__ . '/../lib/db.php';
+require_once __DIR__ . '/../lib/accounts.php';
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $data = $method === 'POST' ? body() : $_GET;

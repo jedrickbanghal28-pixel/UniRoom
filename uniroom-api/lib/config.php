@@ -9,7 +9,7 @@
 */
 
 // Load a local .env file if there is one (Vercel uses real env vars instead).
-$envFile = dirname(__DIR__, 2) . '/.env';
+$envFile = dirname(__DIR__) . '/.env';
 if (is_file($envFile)) {
     foreach (file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
         $line = trim($line);

@@ -16,8 +16,8 @@
  *                  errors: [...], username?, email_sent?, email_error? } ],
  *     summary: { total, created, invalid, failed, emails_sent } }
  */
-require_once __DIR__ . '/_lib/db.php';
-require_once __DIR__ . '/_lib/accounts.php';
+require_once __DIR__ . '/../lib/db.php';
+require_once __DIR__ . '/../lib/accounts.php';
 
 const MAX_ROWS_PER_REQUEST = 50;
 

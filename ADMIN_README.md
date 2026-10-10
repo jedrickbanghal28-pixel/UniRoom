@@ -68,6 +68,8 @@ Gmail lets a normal account send about 500 emails a day. That is enough for bulk
 
 PHP runs on Vercel through the community runtime `vercel-php` (set in `vercel.json`). No Composer packages are needed.
 
+The whole API runs as **one** serverless function (`api/index.php`), because Vercel's free Hobby plan allows at most 12 functions per deployment. `vercel.json` sends every request to `api/index.php`, which runs the matching file in `routes/` (e.g. `/api/login.php` runs `routes/login.php`). The URLs are the same as before. To add a new endpoint, just add a file to `routes/`.
+
 ## 4. Deploy the admin website (`uniroom-admin`)
 
 1. Edit `uniroom-admin/config.js` and set the API address:
@@ -89,7 +91,7 @@ PHP runs on Vercel through the community runtime `vercel-php` (set in `vercel.js
 # API (needs PHP 8 with pdo_pgsql)
 cd uniroom-api
 cp .env.example .env        # then fill in your Supabase or local Postgres details
-php -S localhost:8000       # API is now at http://localhost:8000/api
+php -S localhost:8000 api/index.php   # API is now at http://localhost:8000/api
 
 # Website (any static server), in another terminal
 cd uniroom-admin
@@ -102,7 +104,7 @@ python -m http.server 5500  # open http://localhost:5500
 
 | File | Change |
 |---|---|
-| all `.php` | moved to `uniroom-api/api/`. Database settings now come from environment variables (`api/_lib/config.php`), not `config.php` with a hard-coded password |
+| all `.php` | moved to `uniroom-api/routes/` (shared helpers in `uniroom-api/lib/`). Database settings now come from environment variables (`lib/config.php`), not `config.php` with a hard-coded password |
 | `admin_login.php` | returns a login token and `must_change_password` |
 | `login.php` | returns `must_change_password` |
 | `admin_dashboard.php`, `admin_departments.php`, `admin_users.php` | admin login required. The users list now shows section, gender, age and status |
@@ -113,7 +115,7 @@ python -m http.server 5500  # open http://localhost:5500
 | `index.html` | new Account Creation page (individual + bulk), `*` on required fields, schedule conflict box, password-change window |
 
 New files:
-- **API:** `admin_create_user.php`, `admin_bulk_create_users.php`, `admin_form_options.php`, `admin_resend_invite.php`, `set_password.php`, `change_password.php`, `health.php`, `api/_lib/*`
+- **API:** `admin_create_user.php`, `admin_bulk_create_users.php`, `admin_form_options.php`, `admin_resend_invite.php`, `set_password.php`, `change_password.php`, `health.php`, `lib/*`, and `api/index.php` (the single entry point)
 - **Website:** `accounts.js`, `schedule.js`, `validation.js`, `spreadsheet-reader.js`, `config.js`, `set-password.html`, `templates/bulk_accounts_template.csv`
 
 ## Still to do (outside this update)

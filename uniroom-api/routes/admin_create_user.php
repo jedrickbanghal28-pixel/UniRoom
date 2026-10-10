@@ -12,8 +12,8 @@
  * 409 → { errors: [...] }               email or student ID already registered
  * 200 → { user, email_sent, email_error? }
  */
-require_once __DIR__ . '/_lib/db.php';
-require_once __DIR__ . '/_lib/accounts.php';
+require_once __DIR__ . '/../lib/db.php';
+require_once __DIR__ . '/../lib/accounts.php';
 
 $admin = require_role(['admin']);
 $data = body();

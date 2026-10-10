@@ -51,7 +51,7 @@ File columns (header names are not case-sensitive):
 
 **Files:**
 - Website: `accounts.js`, `spreadsheet-reader.js`
-- API: `admin_create_user.php`, `admin_bulk_create_users.php`, `_lib/accounts.php`
+- API: `admin_create_user.php`, `admin_bulk_create_users.php`, `lib/accounts.php`
 
 ---
 
@@ -95,7 +95,7 @@ Other rules:
 - Emails are sent through Gmail SMTP using a Google App Password.
 
 **Files:**
-- API: `_lib/mailer.php`, `set_password.php`, `change_password.php`, `admin_resend_invite.php`
+- API: `lib/mailer.php`, `set_password.php`, `change_password.php`, `admin_resend_invite.php`
 - Website: `set-password.html`, the password window in `index.html`
 - Table: `password_tokens`. Column: `users.must_change_password`
 

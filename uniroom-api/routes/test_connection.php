@@ -1,0 +1,1 @@
+<?php require_once __DIR__ . '/../lib/db.php'; echo json_encode(['success'=>true,'message'=>'PostgreSQL connection successful!']); ?>
