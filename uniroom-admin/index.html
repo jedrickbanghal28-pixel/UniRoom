@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>UNIROOM</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- =====================================================
+     LOGIN PAGE
+===================================================== -->
+
+<div class="login-page" id="loginPage">
+
+    <div class="login-container">
+
+        <div class="logo-box">
+            <div class="logo">U</div>
+        </div>
+
+        <div class="login-card">
+
+            <div class="login-title">
+                <h1>UNIROOM</h1>
+                <p>University Room Management System</p>
+            </div>
+
+            <label for="email">Email <span class="req">*</span></label>
+            <input
+                type="email"
+                id="email"
+                placeholder="Enter your email"
+                data-required
+                data-label="Email"
+            >
+
+            <label for="password">Password <span class="req">*</span></label>
+            <input
+                type="password"
+                id="password"
+                placeholder="Enter your password"
+                data-required
+                data-label="Password"
+                onkeydown="if (event.key === 'Enter') login()"
+            >
+
+            <button class="login-btn" onclick="login()">
+                LOG IN
+            </button>
+
+            <p class="login-message" id="loginMessage"></p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ADMIN PANEL
+===================================================== -->
+
+<div class="app hidden" id="adminApp">
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-logo">U</div>
+            <span>UNIROOM</span>
+        </div>
+
+        <div class="account-info">
+
+            <div class="avatar">
+                A
+            </div>
+
+            <div>
+                <strong>Administrator</strong>
+                <small>System Admin</small>
+            </div>
+
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <button
+                class="nav-button active"
+                onclick="showAdminPage('adminDashboard', this)"
+            >
+                Dashboard
+            </button>
+
+            <button
+                class="nav-button"
+                onclick="showAdminPage('adminDepartments', this)"
+            >
+                Departments
+            </button>
+
+            <button
+                class="nav-button"
+                onclick="showAdminPage('adminUsers', this)"
+            >
+                User Management
+            </button>
+
+            <button
+                class="nav-button"
+                onclick="showAdminPage('adminAccounts', this)"
+            >
+                Account Creation
+            </button>
+
+            <button
+                class="nav-button logout-button"
+                onclick="logout()"
+            >
+                Logout
+            </button>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+                <h2 id="adminPageTitle">
+                    Admin Dashboard
+                </h2>
+
+                <p>
+                    Manage UNIROOM system information.
+                </p>
+            </div>
+
+            <div class="top-avatar">
+                A
+            </div>
+
+        </header>
+
+
+        <!-- ADMIN DASHBOARD -->
+
+        <section
+            class="page active-page"
+            id="adminDashboard"
+        >
+
+            <div class="page-heading">
+
+                <h1>Dashboard</h1>
+
+                <p>
+                    Overall university statistics
+                </p>
+
+            </div>
+
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <span>Students Enrolled</span>
+
+                    <strong id="totalStudents">
+                        0
+                    </strong>
+
+                    <small>
+                        Total enrolled students
+                    </small>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>Faculty & Staff</span>
+
+                    <strong id="totalStaff">
+                        0
+                    </strong>
+
+                    <small>
+                        Faculty and staff members
+                    </small>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>Departments</span>
+
+                    <strong id="totalDepartments">
+                        0
+                    </strong>
+
+                    <small>
+                        School departments
+                    </small>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>Sections</span>
+
+                    <strong id="totalSections">
+                        0
+                    </strong>
+
+                    <small>
+                        Active sections
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="panel-grid">
+
+                <div class="panel">
+
+                    <div class="panel-title">
+                        <h3>Department Overview</h3>
+                    </div>
+
+                    <div id="adminDepartmentOverview"></div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-title">
+                        <h3>System Summary</h3>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Active Users</span>
+                        <strong id="activeUsers">
+                            0
+                        </strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Faculty Accounts</span>
+                        <strong id="facultyAccounts">
+                            0
+                        </strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Student Accounts</span>
+                        <strong id="studentAccounts">
+                            0
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ADMIN DEPARTMENTS -->
+
+        <section
+            class="page"
+            id="adminDepartments"
+        >
+
+            <div class="page-heading">
+
+                <h1>Departments</h1>
+
+                <p>
+                    View all school departments.
+                </p>
+
+            </div>
+
+
+            <div
+                class="department-grid"
+                id="departmentCards"
+            ></div>
+
+        </section>
+
+
+        <!-- ADMIN USER MANAGEMENT -->
+
+        <section
+            class="page"
+            id="adminUsers"
+        >
+
+            <div class="page-heading">
+
+                <h1>User Management</h1>
+
+                <p>
+                    View accounts currently registered in UNIROOM.
+                </p>
+
+            </div>
+
+
+            <div class="panel">
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Department</th>
+                                <th>Section</th>
+                                <th>Gender</th>
+                                <th>Age</th>
+                                <th>Status</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="usersTable"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ADMIN ACCOUNT CREATION -->
+
+        <section
+            class="page"
+            id="adminAccounts"
+        >
+
+            <div class="page-heading">
+
+                <h1>Account Creation</h1>
+
+                <p>
+                    Create student and faculty accounts one at a time or in bulk.
+                    Each new user receives an email with their account details.
+                </p>
+
+            </div>
+
+
+            <div class="tab-bar" role="tablist">
+
+                <button
+                    class="tab-button active"
+                    onclick="showAccountTab('accountIndividual', this)"
+                >
+                    Individual account
+                </button>
+
+                <button
+                    class="tab-button"
+                    onclick="showAccountTab('accountBulk', this)"
+                >
+                    Bulk upload (CSV / Excel)
+                </button>
+
+            </div>
+
+
+            <div class="notice notice-warning hidden" id="emailWarning">
+                <strong>Email sending is not set up yet.</strong>
+                <p>
+                    Accounts can still be created, but the API cannot send emails until
+                    SMTP_USER and SMTP_PASS (a Gmail App Password) are added to the API's
+                    environment variables. The login details will be shown here instead.
+                </p>
+            </div>
+
+
+            <!-- ========== INDIVIDUAL ========== -->
+
+            <div class="tab-panel" id="accountIndividual">
+
+                <div class="panel form-panel wide-form" id="accountForm">
+
+                    <h3>Create Account</h3>
+
+                    <p class="form-hint">
+                        Fields marked with <span class="req">*</span> are required.
+                    </p>
+
+
+                    <h4 class="form-section-title">Personal information</h4>
+
+                    <div class="form-grid">
+
+                        <div>
+                            <label for="acFirstName">First Name <span class="req">*</span></label>
+                            <input type="text" id="acFirstName" placeholder="e.g. Juan" data-required data-label="First name" autocomplete="off">
+                        </div>
+
+                        <div>
+                            <label for="acLastName">Last Name <span class="req">*</span></label>
+                            <input type="text" id="acLastName" placeholder="e.g. Dela Cruz" data-required data-label="Last name" autocomplete="off">
+                        </div>
+
+                        <div class="span-2">
+                            <label for="acEmail">Email Address <span class="req">*</span></label>
+                            <input type="email" id="acEmail" placeholder="e.g. juan.delacruz@gmail.com" data-required data-label="Email address" autocomplete="off">
+                        </div>
+
+                        <div>
+                            <label for="acGender">Gender <span class="req">*</span></label>
+                            <select id="acGender" data-required data-label="Gender">
+                                <option value="">Select gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Prefer not to say">Prefer not to say</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="acAge">Age <span class="req">*</span></label>
+                            <input type="number" id="acAge" min="15" max="100" step="1" placeholder="e.g. 19" data-required data-label="Age">
+                        </div>
+
+                        <div class="span-2">
+                            <label for="acContact">Contact Number</label>
+                            <input type="tel" id="acContact" placeholder="e.g. 0917 123 4567 (optional)">
+                        </div>
+
+                    </div>
+
+
+                    <h4 class="form-section-title">Academic / employment details</h4>
+
+                    <div class="form-grid">
+
+                        <div>
+                            <label for="acRole">Role <span class="req">*</span></label>
+                            <select id="acRole" data-required data-label="Role" onchange="updateRoleFields()">
+                                <option value="">Select role</option>
+                                <option value="student">Student</option>
+                                <option value="faculty">Faculty</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="acDepartment">Department <span class="req">*</span></label>
+                            <select id="acDepartment" data-required data-label="Department" onchange="updateSectionOptions()">
+                                <option value="">Select department</option>
+                            </select>
+                        </div>
+
+                        <div class="student-only hidden">
+                            <label for="acSection">Section <span class="req">*</span></label>
+                            <select id="acSection" data-required data-label="Section">
+                                <option value="">Choose a department first</option>
+                            </select>
+                        </div>
+
+                        <div class="student-only hidden">
+                            <label for="acStudentId">Student ID <span class="req">*</span></label>
+                            <input type="text" id="acStudentId" placeholder="e.g. 2026-0001" data-required data-label="Student ID" autocomplete="off">
+                        </div>
+
+                        <div class="faculty-only hidden">
+                            <label for="acEmployeeId">Employee ID</label>
+                            <input type="text" id="acEmployeeId" placeholder="optional" autocomplete="off">
+                        </div>
+
+                    </div>
+
+
+                    <h4 class="form-section-title">Password <span class="req">*</span></h4>
+
+                    <div class="radio-cards">
+
+                        <label class="radio-card">
+                            <input type="radio" name="acPasswordMode" value="link" checked>
+                            <span>
+                                <strong>Send a password setup link <em>Recommended</em></strong>
+                                <small>The user opens a secure one-time link from the email and chooses their own password.</small>
+                            </span>
+                        </label>
+
+                        <label class="radio-card">
+                            <input type="radio" name="acPasswordMode" value="temporary">
+                            <span>
+                                <strong>Send a temporary password</strong>
+                                <small>A random password is emailed. The user must change it the first time they log in.</small>
+                            </span>
+                        </label>
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            class="primary-btn"
+                            id="createAccountButton"
+                            onclick="createAccount()"
+                        >
+                            Create Account
+                        </button>
+
+                        <button
+                            class="secondary-btn"
+                            onclick="resetAccountForm(true)"
+                        >
+                            Clear
+                        </button>
+
+                    </div>
+
+
+                    <p
+                        class="form-message"
+                        id="accountMessage"
+                    ></p>
+
+                    <div id="accountResult"></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========== BULK ========== -->
+
+            <div class="tab-panel hidden" id="accountBulk">
+
+                <div class="panel">
+
+                    <h3>Bulk Account Creation</h3>
+
+                    <p class="form-hint">
+                        Register many students or faculty members at once by uploading a CSV or
+                        Excel (.xlsx) file. The system checks every row and tells you about missing
+                        or duplicate information before any account is created.
+                    </p>
+
+
+                    <ol class="steps">
+
+                        <li>
+                            <strong>Download the template</strong>
+                            <span>One account per row. Keep the first row (column names) as it is.</span>
+                            <button class="secondary-btn" onclick="downloadBulkTemplate()">
+                                Download CSV template
+                            </button>
+                        </li>
+
+                        <li>
+                            <strong>Fill in the required columns</strong>
+                            <span>
+                                <code>first_name</code>*, <code>last_name</code>*, <code>email</code>*,
+                                <code>gender</code>* (Male / Female / Prefer not to say),
+                                <code>age</code>*, <code>role</code>* (student / faculty),
+                                <code>department</code>* (code, e.g. BSIT).
+                                Students also need <code>section</code>* and <code>student_id</code>*.
+                                Optional: <code>employee_id</code>, <code>contact_number</code>.
+                            </span>
+                        </li>
+
+                        <li>
+                            <strong>Choose how users get their password</strong>
+
+                            <div class="radio-cards compact">
+
+                                <label class="radio-card">
+                                    <input type="radio" name="bulkPasswordMode" value="link" checked>
+                                    <span>
+                                        <strong>Password setup link <em>Recommended</em></strong>
+                                        <small>Each user sets their own password from the email.</small>
+                                    </span>
+                                </label>
+
+                                <label class="radio-card">
+                                    <input type="radio" name="bulkPasswordMode" value="temporary">
+                                    <span>
+                                        <strong>Temporary password</strong>
+                                        <small>Must be changed at first login.</small>
+                                    </span>
+                                </label>
+
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>Upload the file</strong>
+
+                            <label class="file-drop" for="bulkFile">
+                                <input
+                                    type="file"
+                                    id="bulkFile"
+                                    accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                    onchange="handleBulkFile(this)"
+                                >
+                                <span class="file-drop-button">Choose file</span>
+                                <span id="bulkFileName">No file chosen</span>
+                            </label>
+                        </li>
+
+                    </ol>
+
+
+                    <p class="form-message" id="bulkMessage"></p>
+
+                    <div id="bulkSummary"></div>
+
+                    <div id="bulkPreview"></div>
+
+                    <div class="form-actions hidden" id="bulkActions">
+
+                        <button
+                            class="primary-btn"
+                            id="bulkCreateButton"
+                            onclick="createBulkAccounts()"
+                        >
+                            Create accounts
+                        </button>
+
+                        <button
+                            class="secondary-btn"
+                            id="bulkProblemReportButton"
+                            onclick="downloadBulkProblemReport()"
+                        >
+                            Download list of problems
+                        </button>
+
+                    </div>
+
+                    <div class="progress hidden" id="bulkProgress">
+                        <div class="progress-bar"><span></span></div>
+                        <small class="progress-label"></small>
+                    </div>
+
+                    <div id="bulkResults"></div>
+
+                    <div class="form-actions hidden" id="bulkResultsActions">
+
+                        <button
+                            class="secondary-btn"
+                            onclick="downloadBulkResults()"
+                        >
+                            Download results report
+                        </button>
+
+                        <button
+                            class="secondary-btn"
+                            onclick="startNewBulkUpload()"
+                        >
+                            Upload another file
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+
+<!-- =====================================================
+     FACULTY PANEL
+===================================================== -->
+
+<div class="app hidden" id="facultyApp">
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                U
+            </div>
+
+            <span>UNIROOM</span>
+
+        </div>
+
+
+        <div class="account-info">
+
+            <div
+                class="avatar"
+                id="facultyAvatar"
+            >
+                F
+            </div>
+
+            <div>
+
+                <strong id="facultyName">
+                    Faculty
+                </strong>
+
+                <small id="facultyDepartment">
+                    Department
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <button
+                class="nav-button active"
+                onclick="showFacultyPage('facultyDashboard', this)"
+            >
+                Dashboard
+            </button>
+
+
+            <button
+                class="nav-button"
+                onclick="showFacultyPage('facultySections', this)"
+            >
+                Sections
+            </button>
+
+
+            <button
+                class="nav-button"
+                onclick="showFacultyPage('facultyMembers', this)"
+            >
+                Faculty Members
+            </button>
+
+
+            <button
+                class="nav-button"
+                onclick="showFacultyPage('facultySchedule', this)"
+            >
+                Schedule
+            </button>
+
+
+            <button
+                class="nav-button"
+                onclick="showFacultyPage('facultyRooms', this)"
+            >
+                Room Tagging
+            </button>
+
+
+            <button
+                class="nav-button"
+                onclick="showFacultyPage('facultyStudents', this)"
+            >
+                Student Records
+            </button>
+
+
+            <button
+                class="nav-button logout-button"
+                onclick="logout()"
+            >
+                Logout
+            </button>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+
+                <h2 id="facultyPageTitle">
+                    Faculty Dashboard
+                </h2>
+
+                <p id="facultyTopDescription">
+                    Department overview
+                </p>
+
+            </div>
+
+
+            <div
+                class="top-avatar"
+                id="facultyTopAvatar"
+            >
+                F
+            </div>
+
+        </header>
+
+
+        <!-- FACULTY DASHBOARD -->
+
+        <section
+            class="page active-page"
+            id="facultyDashboard"
+        >
+
+            <div class="page-heading">
+
+                <h1 id="facultyDashboardTitle">
+                    Department Dashboard
+                </h1>
+
+                <p>
+                    Overall information for your department.
+                </p>
+
+            </div>
+
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <span>Students</span>
+
+                    <strong id="facultyStudentTotal">
+                        0
+                    </strong>
+
+                    <small>
+                        Department students
+                    </small>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>Sections</span>
+
+                    <strong id="facultySectionTotal">
+                        0
+                    </strong>
+
+                    <small>
+                        Department sections
+                    </small>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>Faculty Members</span>
+
+                    <strong id="facultyMemberTotal">
+                        0
+                    </strong>
+
+                    <small>
+                        Department faculty
+                    </small>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>Rooms</span>
+
+                    <strong id="facultyRoomTotal">
+                        0
+                    </strong>
+
+                    <small>
+                        Tagged rooms
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="panel-grid">
+
+                <div class="panel">
+
+                    <div class="panel-title">
+                        <h3>Department Sections</h3>
+                    </div>
+
+                    <div id="facultySectionOverview"></div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-title">
+                        <h3>Today's Classes</h3>
+                    </div>
+
+                    <div id="todayClasses"></div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- FACULTY SECTIONS -->
+
+        <section
+            class="page"
+            id="facultySections"
+        >
+
+            <div class="page-heading">
+
+                <h1>Sections</h1>
+
+                <p>
+                    Sections and class schedules for your department.
+                </p>
+
+            </div>
+
+
+            <div
+                class="section-list"
+                id="facultySectionCards"
+            ></div>
+
+        </section>
+
+
+        <!-- FACULTY MEMBERS -->
+
+        <section
+            class="page"
+            id="facultyMembers"
+        >
+
+            <div class="page-heading">
+
+                <h1>Faculty Members</h1>
+
+                <p>
+                    Faculty members and their teaching schedules.
+                </p>
+
+            </div>
+
+
+            <div class="panel">
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Name</th>
+                                <th>Subject</th>
+                                <th>Schedule</th>
+                                <th>Room</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="facultyMembersTable"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- FACULTY SCHEDULE -->
+
+        <section
+            class="page"
+            id="facultySchedule"
+        >
+
+            <div class="page-heading">
+
+                <h1>Schedule</h1>
+
+                <p>
+                    View and adjust the department schedule.
+                </p>
+
+            </div>
+
+
+            <div class="panel">
+
+                <div
+                    class="schedule-list"
+                    id="scheduleList"
+                ></div>
+
+            </div>
+
+
+            <div class="panel form-panel wide-form" id="scheduleForm">
+
+                <h3>Add Schedule</h3>
+
+                <p class="form-hint">
+                    Fields marked with <span class="req">*</span> are required.
+                    Before saving, UNIROOM checks that the room, the faculty member and the
+                    section are all free at that time.
+                </p>
+
+                <div class="form-grid">
+
+                    <div>
+                        <label for="scheduleSection">Section <span class="req">*</span></label>
+                        <select id="scheduleSection" data-required data-label="Section"></select>
+                    </div>
+
+                    <div>
+                        <label for="scheduleSubject">Subject <span class="req">*</span></label>
+                        <select id="scheduleSubject" data-required data-label="Subject"></select>
+                    </div>
+
+                    <div>
+                        <label for="scheduleTeacher">Faculty <span class="req">*</span></label>
+                        <select id="scheduleTeacher" data-required data-label="Faculty"></select>
+                    </div>
+
+                    <div>
+                        <label for="scheduleRoom">Room <span class="req">*</span></label>
+                        <select id="scheduleRoom" data-required data-label="Room"></select>
+                    </div>
+
+                    <div>
+                        <label for="scheduleDay">Day <span class="req">*</span></label>
+                        <select id="scheduleDay" data-required data-label="Day">
+                            <option value="">Select day</option>
+                            <option>Monday</option>
+                            <option>Tuesday</option>
+                            <option>Wednesday</option>
+                            <option>Thursday</option>
+                            <option>Friday</option>
+                            <option>Saturday</option>
+                        </select>
+                    </div>
+
+                    <div class="time-pair">
+                        <div>
+                            <label for="scheduleStartTime">Start Time <span class="req">*</span></label>
+                            <input type="time" id="scheduleStartTime" data-required data-label="Start time">
+                        </div>
+                        <div>
+                            <label for="scheduleEndTime">End Time <span class="req">*</span></label>
+                            <input type="time" id="scheduleEndTime" data-required data-label="End time">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="conflict-box hidden" id="scheduleConflicts" role="alert"></div>
+
+                <button
+                    class="primary-btn"
+                    id="saveScheduleButton"
+                    onclick="addSchedule()"
+                >
+                    Save Schedule
+                </button>
+
+                <p
+                    class="form-message"
+                    id="scheduleMessage"
+                ></p>
+
+            </div>
+
+        </section>
+
+
+        <!-- ROOM TAGGING -->
+
+        <section
+            class="page"
+            id="facultyRooms"
+        >
+
+            <div class="page-heading">
+
+                <h1>Room Tagging</h1>
+
+                <p>
+                    Assign rooms to classes in your department.
+                </p>
+
+            </div>
+
+
+            <div class="room-grid" id="roomGrid"></div>
+
+
+            <div class="panel form-panel" id="roomForm">
+
+                <h3>Assign Room</h3>
+
+                <label for="roomSection">Section <span class="req">*</span></label>
+
+                <select id="roomSection" data-required data-label="Section"></select>
+
+
+                <label for="roomRoom">Room <span class="req">*</span></label>
+
+                <select id="roomRoom" data-required data-label="Room">
+                </select>
+
+
+                <button
+                    class="primary-btn"
+                    onclick="assignRoom()"
+                >
+                    Assign Room
+                </button>
+
+                <p
+                    class="form-message"
+                    id="roomMessage"
+                ></p>
+
+            </div>
+
+        </section>
+
+
+        <!-- STUDENT RECORDS -->
+
+        <section
+            class="page"
+            id="facultyStudents"
+        >
+
+            <div class="page-heading">
+
+                <h1>Student Records</h1>
+
+                <p>
+                    Student records for your department.
+                </p>
+
+            </div>
+
+
+            <div class="panel">
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Section</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="studentRecordsTable"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =====================================================
+     FIRST LOGIN – CHANGE TEMPORARY PASSWORD
+===================================================== -->
+
+<div class="modal-backdrop hidden" id="changePasswordModal" role="dialog" aria-modal="true" aria-labelledby="cpTitle">
+
+    <div class="modal form-panel">
+
+        <h3 id="cpTitle">Set a new password</h3>
+
+        <p class="form-hint">
+            You logged in with a temporary password. For your security, choose a new
+            password before continuing. Fields marked with <span class="req">*</span> are required.
+        </p>
+
+        <label for="cpNewPassword">New Password <span class="req">*</span></label>
+        <input type="password" id="cpNewPassword" data-required data-label="New password" autocomplete="new-password">
+
+        <label for="cpConfirmPassword">Confirm New Password <span class="req">*</span></label>
+        <input type="password" id="cpConfirmPassword" data-required data-label="Confirm new password" autocomplete="new-password"
+               onkeydown="if (event.key === 'Enter') submitChangePassword()">
+
+        <small class="password-rules">At least 8 characters, with letters and numbers.</small>
+
+        <div class="form-actions">
+            <button class="primary-btn" onclick="submitChangePassword()">Save and continue</button>
+            <button class="secondary-btn" onclick="cancelChangePassword()">Log out</button>
+        </div>
+
+        <p class="form-message" id="cpMessage"></p>
+
+    </div>
+
+</div>
+
+
+<script src="config.js"></script>
+<script src="validation.js"></script>
+<script src="spreadsheet-reader.js"></script>
+<script src="script.js"></script>
+<script src="accounts.js"></script>
+<script src="schedule.js"></script>
+
+</body>
+</html>
