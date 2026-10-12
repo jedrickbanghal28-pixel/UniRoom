@@ -364,8 +364,8 @@ def department_students(department_id: int = Path(..., ge=1), token=Token):
 
 # ------------------------------------------------------------------ sections
 @app.get("/api/sections", tags=["sections"], summary="List Sections")
-def list_sections(department_id: Optional[int] = None):
-    return run(svc.sections_list, query={"department_id": department_id} if department_id else {})
+def list_sections(department_id: Optional[int] = None, token=Token):
+    return run(svc.sections_list, query={"department_id": department_id} if department_id else {}, token=token)
 
 
 @app.post("/api/sections", tags=["sections"], summary="Create Section")
@@ -374,8 +374,8 @@ def create_section(body: SectionIn, token=Token):
 
 
 @app.get("/api/sections/{section_id}", tags=["sections"], summary="Get Section")
-def get_section(section_id: int = Path(..., ge=1)):
-    return run(svc.section_get, section_id)
+def get_section(section_id: int = Path(..., ge=1), token=Token):
+    return run(svc.section_get, section_id, token=token)
 
 
 @app.put("/api/sections/{section_id}", tags=["sections"], summary="Update Section")
@@ -390,34 +390,39 @@ def delete_section(section_id: int = Path(..., ge=1), token=Token):
 
 # ------------------------------------------------------------------ rooms
 @app.get("/api/rooms", tags=["rooms"], summary="List Rooms")
-def list_rooms(search: Optional[str] = Query(None, examples=["TH 30"])):
-    return run(svc.rooms_list, query={"search": search} if search else {})
+def list_rooms(search: Optional[str] = Query(None, examples=["TH 30"]), token=Token):
+    return run(svc.rooms_list, query={"search": search} if search else {}, token=token)
+
+
+@app.get("/api/rooms/today", tags=["rooms"], summary="Rooms with Today's Classes (live availability)")
+def rooms_today(day: Optional[str] = Query(None, examples=["Monday"], description="Default: today"), token=Token):
+    return run(svc.rooms_today, query={"day": day} if day else {}, token=token)
 
 
 @app.post("/api/rooms", tags=["rooms"], summary="Create Room")
-def create_room(body: RoomIn):
-    return run(svc.room_save, data=body_of(body))
+def create_room(body: RoomIn, token=Token):
+    return run(svc.room_save, data=body_of(body), token=token)
 
 
 @app.get("/api/rooms/{room_id}", tags=["rooms"], summary="Get Room")
-def get_room(room_id: int = Path(..., ge=1)):
-    return run(svc.room_get, room_id)
+def get_room(room_id: int = Path(..., ge=1), token=Token):
+    return run(svc.room_get, room_id, token=token)
 
 
 @app.put("/api/rooms/{room_id}", tags=["rooms"], summary="Update Room")
-def update_room(body: RoomIn, room_id: int = Path(..., ge=1)):
-    return run(svc.room_save, room_id, data=body_of(body))
+def update_room(body: RoomIn, room_id: int = Path(..., ge=1), token=Token):
+    return run(svc.room_save, room_id, data=body_of(body), token=token)
 
 
 @app.delete("/api/rooms/{room_id}", tags=["rooms"], summary="Delete Room")
-def delete_room(room_id: int = Path(..., ge=1)):
-    return run(svc.room_delete, room_id)
+def delete_room(room_id: int = Path(..., ge=1), token=Token):
+    return run(svc.room_delete, room_id, token=token)
 
 
 # ------------------------------------------------------------------ subjects
 @app.get("/api/subjects", tags=["subjects"], summary="List Subjects")
-def list_subjects():
-    return run(svc.subjects_list)
+def list_subjects(token=Token):
+    return run(svc.subjects_list, token=token)
 
 
 @app.post("/api/subjects", tags=["subjects"], summary="Create Subject")
@@ -426,8 +431,8 @@ def create_subject(body: SubjectIn, token=Token):
 
 
 @app.get("/api/subjects/{subject_id}", tags=["subjects"], summary="Get Subject")
-def get_subject(subject_id: int = Path(..., ge=1)):
-    return run(svc.subject_get, subject_id)
+def get_subject(subject_id: int = Path(..., ge=1), token=Token):
+    return run(svc.subject_get, subject_id, token=token)
 
 
 @app.put("/api/subjects/{subject_id}", tags=["subjects"], summary="Update Subject")
@@ -442,8 +447,8 @@ def delete_subject(subject_id: int = Path(..., ge=1), token=Token):
 
 # ------------------------------------------------------------------ faculty
 @app.get("/api/faculty", tags=["faculty"], summary="List Faculty")
-def list_faculty():
-    return run(svc.faculty_list)
+def list_faculty(token=Token):
+    return run(svc.faculty_list, token=token)
 
 
 @app.post("/api/faculty", tags=["faculty"], summary="Create Faculty")
@@ -452,8 +457,8 @@ def create_faculty(body: FacultyIn, token=Token):
 
 
 @app.get("/api/faculty/{faculty_id}", tags=["faculty"], summary="Get Faculty")
-def get_faculty(faculty_id: int = Path(..., ge=1)):
-    return run(svc.faculty_get, faculty_id)
+def get_faculty(faculty_id: int = Path(..., ge=1), token=Token):
+    return run(svc.faculty_get, faculty_id, token=token)
 
 
 @app.put("/api/faculty/{faculty_id}", tags=["faculty"], summary="Update Faculty")
@@ -469,9 +474,9 @@ def delete_faculty(faculty_id: int = Path(..., ge=1), token=Token):
 # ------------------------------------------------------------------ faculty_subjects
 @app.get("/api/faculty-subjects", tags=["faculty_subjects"], summary="List Faculty Subjects")
 def list_faculty_subjects(faculty_id: Optional[int] = None, subject_id: Optional[int] = None,
-                          department_id: Optional[int] = None):
+                          department_id: Optional[int] = None, token=Token):
     q = {"faculty_id": faculty_id, "subject_id": subject_id, "department_id": department_id}
-    return run(svc.faculty_subjects_list, query={k: v for k, v in q.items() if v})
+    return run(svc.faculty_subjects_list, query={k: v for k, v in q.items() if v}, token=token)
 
 
 @app.post("/api/faculty-subjects", tags=["faculty_subjects"], summary="Assign Subject to Faculty")
@@ -490,15 +495,15 @@ def delete_faculty_subject(faculty_id: int = Path(..., ge=1), subject_id: int = 
 @app.get("/api/schedules", tags=["schedules"], summary="List Schedules")
 def list_schedules(section_id: Optional[int] = None, room_id: Optional[int] = None, faculty_id: Optional[int] = None,
                    subject_id: Optional[int] = None, department_id: Optional[int] = None,
-                   day_of_week: Optional[str] = Query(None, examples=["Monday"])):
+                   day_of_week: Optional[str] = Query(None, examples=["Monday"]), token=Token):
     q = {"section_id": section_id, "room_id": room_id, "faculty_id": faculty_id, "subject_id": subject_id,
          "department_id": department_id, "day_of_week": day_of_week}
-    return run(svc.schedules_list, query={k: v for k, v in q.items() if v})
+    return run(svc.schedules_list, query={k: v for k, v in q.items() if v}, token=token)
 
 
 @app.get("/api/schedules/options", tags=["schedules"], summary="Schedule Form Options")
-def schedule_options():
-    return run(svc.schedule_options)
+def schedule_options(token=Token):
+    return run(svc.schedule_options, token=token)
 
 
 @app.post("/api/schedules", tags=["schedules"], summary="Create Schedule (checks conflicts)")
@@ -507,8 +512,8 @@ def create_schedule(body: ScheduleIn, token=Token):
 
 
 @app.get("/api/schedules/{schedule_id}", tags=["schedules"], summary="Get Schedule")
-def get_schedule(schedule_id: int = Path(..., ge=1)):
-    return run(svc.schedule_get, schedule_id)
+def get_schedule(schedule_id: int = Path(..., ge=1), token=Token):
+    return run(svc.schedule_get, schedule_id, token=token)
 
 
 @app.put("/api/schedules/{schedule_id}", tags=["schedules"], summary="Update Schedule (checks conflicts)")
@@ -523,24 +528,24 @@ def delete_schedule(schedule_id: int = Path(..., ge=1), token=Token):
 
 # ------------------------------------------------------------------ section-rooms
 @app.get("/api/section-rooms", tags=["section_rooms"], summary="List Home Rooms")
-def list_section_rooms():
-    return run(svc.section_rooms_list)
+def list_section_rooms(token=Token):
+    return run(svc.section_rooms_list, token=token)
 
 
 @app.post("/api/section-rooms", tags=["section_rooms"], summary="Create Home Room")
-def create_section_room(body: SectionRoomIn):
+def create_section_room(body: SectionRoomIn, token=Token):
     data = body_of(body)
-    return run(svc.assign_room, int(data["section_id"]), data=data)
+    return run(svc.assign_room, int(data["section_id"]), data=data, token=token)
 
 
 @app.get("/api/section-rooms/{section_id}", tags=["section_rooms"], summary="Get Home Room")
-def get_section_room(section_id: int = Path(..., ge=1)):
-    return run(svc.section_room_get, section_id)
+def get_section_room(section_id: int = Path(..., ge=1), token=Token):
+    return run(svc.section_room_get, section_id, token=token)
 
 
 @app.put("/api/section-rooms/{section_id}", tags=["section_rooms"], summary="Assign Home Room")
-def assign_home_room(body: AssignRoomIn, section_id: int = Path(..., ge=1)):
-    return run(svc.assign_room, section_id, data=body_of(body))
+def assign_home_room(body: AssignRoomIn, section_id: int = Path(..., ge=1), token=Token):
+    return run(svc.assign_room, section_id, data=body_of(body), token=token)
 
 
 @app.delete("/api/section-rooms/{section_id}", tags=["section_rooms"], summary="Remove Home Room")
@@ -548,41 +553,52 @@ def remove_home_room(section_id: int = Path(..., ge=1), token=Token):
     return run(svc.unassign_room, section_id, token=token)
 
 
+# ------------------------------------------------------------------ signed-in user (Android app)
+@app.get("/api/me", tags=["user-auth"], summary="My Account (student or faculty)")
+def my_account(token=Token):
+    return run(svc.me, token=token)
+
+
+@app.get("/api/me/schedule", tags=["user-auth"], summary="My Weekly Classes (student or faculty)")
+def my_classes(token=Token):
+    return run(svc.my_schedule, token=token)
+
+
 # ------------------------------------------------------------------ student-portal
 @app.get("/api/students/{user_id}/schedule", tags=["student-portal"], summary="Student Schedule")
-def student_schedule(user_id: int = Path(..., ge=1)):
-    return run(svc.student_schedule, user_id)
+def student_schedule(user_id: int = Path(..., ge=1), token=Token):
+    return run(svc.student_schedule, user_id, token=token)
 
 
 @app.get("/api/students/{user_id}/room", tags=["student-portal"], summary="Student Home Room")
-def student_room(user_id: int = Path(..., ge=1)):
-    return run(svc.student_room, user_id)
+def student_room(user_id: int = Path(..., ge=1), token=Token):
+    return run(svc.student_room, user_id, token=token)
 
 
 @app.get("/api/students/{user_id}/profile", tags=["student-portal"], summary="Student Profile")
-def student_profile(user_id: int = Path(..., ge=1)):
-    return run(svc.profile, user_id)
+def student_profile(user_id: int = Path(..., ge=1), token=Token):
+    return run(svc.profile, user_id, token=token)
 
 
 # ------------------------------------------------------------------ faculty-portal
 @app.get("/api/faculty-portal/{user_id}/dashboard", tags=["faculty-portal"], summary="Faculty Dashboard")
-def faculty_dashboard(user_id: int = Path(..., ge=1)):
-    return run(svc.faculty_dashboard, user_id)
+def faculty_dashboard(user_id: int = Path(..., ge=1), token=Token):
+    return run(svc.faculty_dashboard, user_id, token=token)
 
 
 @app.get("/api/faculty-portal/{user_id}/members", tags=["faculty-portal"], summary="Faculty Members of Department")
-def faculty_members(user_id: int = Path(..., ge=1)):
-    return run(svc.faculty_members, user_id)
+def faculty_members(user_id: int = Path(..., ge=1), token=Token):
+    return run(svc.faculty_members, user_id, token=token)
 
 
 @app.get("/api/faculty-portal/{user_id}/schedule", tags=["faculty-portal"], summary="Department Schedule")
-def faculty_schedule(user_id: int = Path(..., ge=1)):
-    return run(svc.faculty_schedule, user_id)
+def faculty_schedule(user_id: int = Path(..., ge=1), token=Token):
+    return run(svc.faculty_schedule, user_id, token=token)
 
 
 @app.get("/api/faculty-portal/{user_id}/students", tags=["faculty-portal"], summary="Department Students")
-def faculty_students(user_id: int = Path(..., ge=1)):
-    return run(svc.faculty_students, user_id)
+def faculty_students(user_id: int = Path(..., ge=1), token=Token):
+    return run(svc.faculty_students, user_id, token=token)
 
 
 # ------------------------------------------------------------------ notifications
@@ -674,6 +690,13 @@ def _legacy_room(conn, data, query, token, method, action):
     return svc.room_save(conn, data, query, token)
 
 
+def _need_id(data):
+    i = svc._i(data, "id")
+    if i <= 0:
+        raise ApiError(400, "Id is required.")
+    return i
+
+
 LEGACY = {
     "health": lambda c, d, q, t, m: svc.health(c, d, q, t),
     "test_connection": lambda c, d, q, t, m: svc.test_connection(c, d, q, t),
@@ -706,6 +729,13 @@ LEGACY = {
     "notify_send": lambda c, d, q, t, m: svc.notify_send(c, d, q, t),
     "notifications": lambda c, d, q, t, m: svc.notifications(c, d, q, t),
     "notifications_read": lambda c, d, q, t, m: svc.notifications_read(c, d, q, t),
+    # Android app (signed-in user)
+    "me": lambda c, d, q, t, m: svc.me(c, d, q, t),
+    "my_schedule": lambda c, d, q, t, m: svc.my_schedule(c, d, q, t),
+    "rooms_today": lambda c, d, q, t, m: svc.rooms_today(c, d, q, t),
+    # website: edit / delete a class
+    "update_schedule": lambda c, d, q, t, m: svc.schedule_save(c, d, q, t, _need_id(d)),
+    "delete_schedule": lambda c, d, q, t, m: svc.schedule_delete(c, d, q, t, _need_id(d)),
 }
 
 

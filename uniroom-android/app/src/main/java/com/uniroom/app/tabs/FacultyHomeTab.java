@@ -10,7 +10,6 @@ import android.widget.TextView;
 import com.uniroom.app.R;
 import com.uniroom.app.data.AppState;
 import com.uniroom.app.data.Clock;
-import com.uniroom.app.data.DemoData;
 import com.uniroom.app.model.ClassSession;
 import com.uniroom.app.model.Role;
 import com.uniroom.app.model.Room;
@@ -63,8 +62,9 @@ public class FacultyHomeTab extends TabPage {
         row.removeAllViews();
         LayoutInflater inf = LayoutInflater.from(activity);
         int count = 0;
-        for (Room r : DemoData.ROOMS) {
-            if (!state.assignedRooms().contains(r.code)) continue;
+        for (String code : state.assignedRooms()) {
+            Room r = state.findRoom(code);
+            if (r == null) continue;
             View card = inf.inflate(R.layout.item_room_card, row, false);
             Rows.text(card, R.id.card_code, r.code);
             Rows.text(card, R.id.card_type, r.type);

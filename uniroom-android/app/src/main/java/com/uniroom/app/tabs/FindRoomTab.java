@@ -11,7 +11,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.uniroom.app.R;
-import com.uniroom.app.data.DemoData;
+import com.uniroom.app.data.AppState;
+import com.uniroom.app.data.RoomCatalog;
 import com.uniroom.app.model.Room;
 import com.uniroom.app.model.RoomStatus;
 import com.uniroom.app.screens.MainActivity;
@@ -75,9 +76,9 @@ public class FindRoomTab extends TabPage {
         buildFilters();
 
         List<Room> third = new ArrayList<>(), second = new ArrayList<>();
-        for (Room r : DemoData.ROOMS) {
+        for (Room r : AppState.get().rooms()) {
             if (!matches(r)) continue;
-            if (r.floor == 3) third.add(r); else if (r.floor == 2) second.add(r);
+            if (r.floor == 3) third.add(r); else second.add(r);
         }
 
         // 3rd floor
@@ -90,14 +91,21 @@ public class FindRoomTab extends TabPage {
         LinearLayout thirdList = (LinearLayout) find(R.id.third_list);
         if (third.isEmpty()) {
             thirdList.removeAllViews();
+            boolean none = AppState.get().rooms().isEmpty();
             thirdList.addView(Rows.newEmptyState(thirdList, R.drawable.ic_search_x,
-                    "No rooms match", "Try a different room code or filter."));
+                    none ? "No rooms yet" : "No rooms match",
+                    none ? (AppState.get().isOffline() ? "Connect to the internet to load the rooms."
+                            : "Rooms added by the admin will show up here.")
+                         : "Try a different room code or filter."));
         } else {
             Rows.rooms(thirdList, third, this::openRoom);
         }
 
-        // 2nd floor
-        boolean open = showSecondFloor || !query.trim().isEmpty();
+        // Other floors (only shown when the database has rooms there)
+        boolean anyOther = false;
+        for (Room r : AppState.get().rooms()) if (r.floor != 3) anyOther = true;
+        find(R.id.second_toggle).setVisibility(anyOther ? View.VISIBLE : View.GONE);
+        boolean open = anyOther && (showSecondFloor || !query.trim().isEmpty());
         find(R.id.second_chevron).setRotation(open ? 180 : 0);
         LinearLayout container = (LinearLayout) find(R.id.second_container);
         container.setVisibility(open ? View.VISIBLE : View.GONE);
@@ -106,7 +114,7 @@ public class FindRoomTab extends TabPage {
 
         TextView note = new TextView(activity);
         note.setTextAppearance(R.style.T_Meta);
-        note.setText("These rooms aren’t used for BSIT or BS MedTech classes.");
+        note.setText("Other floors · rooms of other colleges.");
         note.setPadding(Ui.dp(activity, 4), 0, 0, 0);
         container.addView(note);
 
@@ -115,7 +123,7 @@ public class FindRoomTab extends TabPage {
         if (departments.isEmpty()) {
             TextView none = new TextView(activity);
             none.setTextAppearance(R.style.T_Small);
-            none.setText("No 2nd floor rooms match.");
+            none.setText("No rooms on other floors match.");
             none.setPadding(Ui.dp(activity, 4), Ui.dp(activity, 16), 0, 0);
             container.addView(none);
         }
@@ -123,7 +131,7 @@ public class FindRoomTab extends TabPage {
             TextView title = new TextView(activity);
             title.setTextAppearance(R.style.T_CaptionSemi);
             title.setTextColor(activity.getColor(R.color.muted));
-            title.setText(DemoData.departmentName(d));
+            title.setText(RoomCatalog.departmentName(d));
             title.setPadding(Ui.dp(activity, 4), Ui.dp(activity, 16), 0, Ui.dp(activity, 8));
             container.addView(title);
 
@@ -161,6 +169,6 @@ public class FindRoomTab extends TabPage {
     }
 
     private void openRoom(Room room) {
-        RoomDetailSheet.show(activity, room, DemoData.SESSIONS, null);
+        RoomDetailSheet.show(activity, room, AppState.get().todayInRooms(), null);
     }
 }

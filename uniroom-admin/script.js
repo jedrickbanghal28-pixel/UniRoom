@@ -1078,7 +1078,10 @@ function showAdminPage(
             "User Management",
 
         adminAccounts:
-            "Account Creation"
+            "Account Creation",
+
+        adminSetup:
+            "Academic Setup"
 
     };
 
@@ -1138,6 +1141,13 @@ if (
 
     loadDepartments();
 
+}
+
+/*
+ * Load Academic Setup (sections, subjects, rooms)
+ */
+if (pageId === "adminSetup") {
+    loadSetup();
 }
 
 }
@@ -2432,102 +2442,8 @@ async function loadFacultyMembers() {
    SCHEDULE
 ===================================================== */
 
-async function loadSchedule() {
+/* loadSchedule() is in schedule.js (list with Edit / Delete). */
 
-    const container =
-        document.getElementById("scheduleList");
-
-    if (!container) {
-        console.error("scheduleList not found.");
-        return;
-    }
-
-    container.innerHTML = `
-        <p>Loading schedules...</p>
-    `;
-
-    try {
-
-        const response = await apiFetch(
-            "faculty_schedule.php?user_id=" +
-            currentUser.id
-        );
-
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
-
-            container.innerHTML = `
-                <p>
-                    ${result.message ||
-                    "Unable to load schedules."}
-                </p>
-            `;
-
-            console.error(result.message);
-
-            return;
-        }
-
-        container.innerHTML = "";
-
-        if (!result.schedules || result.schedules.length === 0) {
-
-            container.innerHTML =
-                "<p>No schedules found.</p>";
-
-            return;
-        }
-
-        result.schedules.forEach(function(schedule) {
-
-            container.innerHTML += `
-                <div class="schedule-row">
-
-                    <strong>
-                        ${schedule.section}
-                    </strong>
-
-                    <span>
-                        ${schedule.subject}
-                    </span>
-
-                    <span>
-                        ${schedule.faculty}
-                    </span>
-
-                    <span>
-                        ${schedule.day_of_week}
-                        ${formatTime(schedule.start_time)}
-                        -
-                        ${formatTime(schedule.end_time)}
-                    </span>
-
-                    <span>
-                        ${schedule.room}
-                    </span>
-
-                </div>
-            `;
-
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Faculty schedule error:",
-            error
-        );
-
-        container.innerHTML = `
-            <p>
-                Unable to connect to the server.
-            </p>
-        `;
-
-    }
-
-}
 
 /* =====================================================
    ROOM TAGGING

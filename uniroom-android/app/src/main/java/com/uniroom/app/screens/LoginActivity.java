@@ -13,15 +13,13 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.uniroom.app.R;
 import com.uniroom.app.data.ApiClient;
 import com.uniroom.app.data.AppState;
 import com.uniroom.app.data.SavedSession;
-import com.uniroom.app.data.StudentMapper;
-import com.uniroom.app.model.ClassSession;
-import com.uniroom.app.model.Student;
-import com.uniroom.app.model.Teacher;
+import com.uniroom.app.data.DataSync;
 import com.uniroom.app.notify.NotificationCheckJob;
 import com.uniroom.app.notify.Notifier;
 import com.uniroom.app.ui.Buttons;
@@ -29,8 +27,6 @@ import com.uniroom.app.ui.FormField;
 import com.uniroom.app.ui.Ui;
 
 import org.json.JSONObject;
-
-import java.util.List;
 
 /**
  * Sign-in screen for students and faculty.
@@ -41,7 +37,8 @@ import java.util.List;
  *  1. They sign in with the username (or email) and temporary password.
  *  2. The app asks them to choose their own password (required).
  *  3. They are signed in again with the new password and the dashboard opens
- *     with their name, section, schedule and notifications.
+ *     with their name, section (or subjects), schedule and notifications,
+ *     all loaded from the database.
  *
  * The sign-in is remembered on the phone until Log out.
  */
@@ -159,61 +156,42 @@ public class LoginActivity extends Activity {
         });
     }
 
-    /** Signed in with a real password: open the student or faculty dashboard. */
+    /**
+     * Signed in with a real password: load the user's account, classes, rooms
+     * and notifications from the server, then open the dashboard. Works for
+     * every student and faculty account the admin creates.
+     */
     private void continueAs(JSONObject u, String token, boolean restoring) {
-        if ("faculty".equalsIgnoreCase(u.optString("role"))) {
-            Teacher t = StudentMapper.teacher(u);
-            if (t == null) {
-                SavedSession.clear(this);
-                setBusy(false);
-                showError("This faculty account is not set up in the app yet.");
-                return;
-            }
-            SavedSession.save(this, u, token);
-            AppState.get().signInFaculty(t, u.optInt("id"), token);
-            openHome();
-            return;
-        }
-        loadStudent(u, token, restoring);
-    }
-
-    /** Loads the student's schedule and notifications, then opens the home screen. */
-    private void loadStudent(JSONObject u, String token, boolean restoring) {
         setBusy(true);
-        final Student student = StudentMapper.student(u);
-        final int id = u.optInt("id");
-
-        ApiClient.schedule(id, (json, error) -> {
+        DataSync.signIn(this, u, token, (result, message) -> {
             if (isFinishing()) return;
-            if (!ApiClient.ok(json)) {
+            if (result == DataSync.EXPIRED) {
+                // Saved sign-in is too old: sign in again.
+                SavedSession.clear(this);
+                NotificationCheckJob.cancel(this);
                 setBusy(false);
-                showError(ApiClient.message(json, error, "Unable to load your class schedule."));
+                showError(restoring ? "Please sign in again." : message);
                 return;
             }
-            List<ClassSession> sessions = StudentMapper.sessions(ApiClient.data(json), student);
+            if (result == DataSync.FAILED) {
+                setBusy(false);
+                showError(message == null ? "Unable to sign in. Please try again." : message);
+                return;
+            }
 
-            ApiClient.notifications(token, (alerts, err) -> {
-                if (isFinishing()) return;
-                if (ApiClient.sessionExpired(alerts)) {
-                    // Saved sign-in is too old: sign in again.
-                    SavedSession.clear(this);
-                    NotificationCheckJob.cancel(this);
-                    setBusy(false);
-                    if (restoring) showError("Please sign in again.");
-                    else showError(ApiClient.message(alerts, err, "Unable to sign in."));
-                    return;
-                }
-
-                SavedSession.save(this, u, token);
-                AppState.get().signInStudent(student, id, token, sessions);
-                if (ApiClient.ok(alerts)) {
-                    AppState.get().setAlerts(StudentMapper.alerts(ApiClient.data(alerts), student.program));
+            SavedSession.save(this, u, token);
+            if (result == DataSync.OFFLINE) {
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            }
+            if (AppState.get().getAccount().isStudent()) {
+                if (result == DataSync.OK) {
                     // What is already there is shown in the app, not as phone notifications.
-                    Notifier.showNew(this, ApiClient.data(alerts), true);
+                    JSONObject alerts = SavedSession.cache(this, SavedSession.CACHE_ALERTS);
+                    if (alerts != null) Notifier.showNew(this, ApiClient.data(alerts), true);
                 }
                 NotificationCheckJob.schedule(this);
-                openHome();
-            });
+            }
+            openHome();
         });
     }
 

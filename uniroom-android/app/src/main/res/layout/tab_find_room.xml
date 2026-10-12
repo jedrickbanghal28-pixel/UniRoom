@@ -122,7 +122,7 @@
                     style="@style/T.Section"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2nd floor · Other colleges" />
+                    android:text="Other floors · Other colleges" />
 
                 <TextView
                     style="@style/T.Meta"

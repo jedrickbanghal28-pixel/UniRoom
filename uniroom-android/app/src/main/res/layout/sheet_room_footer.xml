@@ -20,19 +20,4 @@
             android:text="Send room update" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/btn_remove_room"
-        style="@style/Btn.Danger"
-        android:layout_marginTop="10dp">
-
-        <ImageView
-            style="@style/BtnIcon"
-            android:importantForAccessibility="no"
-            android:src="@drawable/ic_trash"
-            android:tint="@color/danger" />
-
-        <TextView
-            style="@style/BtnText.Danger"
-            android:text="Remove from my rooms" />
-    </LinearLayout>
 </LinearLayout>

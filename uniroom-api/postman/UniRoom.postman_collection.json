@@ -268,10 +268,59 @@
           }
         },
         {
+          "name": "My account (student or faculty)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/me.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "me.php"
+              ]
+            },
+            "description": "The signed-in user. Faculty also get their subjects; everyone gets the sections of each program."
+          }
+        },
+        {
+          "name": "My weekly classes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/my_schedule.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "my_schedule.php"
+              ]
+            },
+            "description": "Student: classes of their section. Faculty: every class they teach."
+          }
+        },
+        {
           "name": "Section schedule",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/schedule.php?user_id=1",
               "host": [
@@ -286,14 +335,20 @@
                   "value": "1"
                 }
               ]
-            }
+            },
+            "description": "Students can only read their own schedule (the user_id must be the signed-in student's id)."
           }
         },
         {
           "name": "Home room",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/student_room.php?user_id=1",
               "host": [
@@ -315,7 +370,12 @@
           "name": "Rooms",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/rooms.php?search=TH",
               "host": [
@@ -331,6 +391,34 @@
                 }
               ]
             }
+          }
+        },
+        {
+          "name": "Rooms with today's classes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rooms_today.php?day=Monday",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rooms_today.php"
+              ],
+              "query": [
+                {
+                  "key": "day",
+                  "value": "Monday"
+                }
+              ]
+            },
+            "description": "Every room and the classes held in it that day (the app shows live availability)."
           }
         }
       ]

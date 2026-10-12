@@ -9,7 +9,6 @@ import android.widget.TextView;
 import com.uniroom.app.R;
 import com.uniroom.app.data.AppState;
 import com.uniroom.app.data.Clock;
-import com.uniroom.app.data.DemoData;
 import com.uniroom.app.model.AppAlert;
 import com.uniroom.app.model.ClassSession;
 import com.uniroom.app.model.Role;
@@ -101,7 +100,7 @@ public class StudentHomeTab extends TabPage {
         week.removeAllViews();
         LayoutInflater inf = LayoutInflater.from(activity);
         for (Map.Entry<String, Set<Integer>> e : days.entrySet()) {
-            Room room = DemoData.findRoom(e.getKey());
+            Room room = state.findRoom(e.getKey());
             StringBuilder dayNames = new StringBuilder();
             for (int d : e.getValue()) {
                 if (dayNames.length() > 0) dayNames.append(", ");
@@ -109,10 +108,17 @@ public class StudentHomeTab extends TabPage {
             }
             View row = inf.inflate(R.layout.item_week_room, week, false);
             Rows.text(row, R.id.week_code, e.getKey());
-            Rows.text(row, R.id.week_meta, (room != null ? room.type : "Room") + " · 3rd floor");
+            Rows.text(row, R.id.week_meta, room != null ? room.type + " · " + floorLabel(room.floor) : "Room");
             Rows.text(row, R.id.week_days, dayNames.toString());
             week.addView(row);
         }
         if (days.isEmpty()) Rows.note(week, "No rooms scheduled this week.");
+    }
+
+    /** 3 → "3rd floor" */
+    static String floorLabel(int floor) {
+        int t = floor % 100;
+        String suffix = (t >= 11 && t <= 13) ? "th" : floor % 10 == 1 ? "st" : floor % 10 == 2 ? "nd" : floor % 10 == 3 ? "rd" : "th";
+        return floor + suffix + " floor";
     }
 }

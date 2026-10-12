@@ -13,12 +13,15 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.json.JSONObject;
 
 import com.uniroom.app.R;
 import com.uniroom.app.data.ApiClient;
 import com.uniroom.app.data.AppState;
 import com.uniroom.app.data.SavedSession;
-import com.uniroom.app.data.StudentMapper;
+import com.uniroom.app.data.DataSync;
 import com.uniroom.app.notify.NotificationCheckJob;
 import com.uniroom.app.notify.Notifier;
 import com.uniroom.app.model.Account;
@@ -43,10 +46,14 @@ public class MainActivity extends Activity {
     private int currentTab = -1;
     private TabPage page;
 
-    /** While the app is open, students check for new notifications every 30 seconds. */
+    /**
+     * While the app is open it refreshes every 30 seconds: the schedule and
+     * rooms (so a room change by the admin shows up without signing in again)
+     * and, for students, the notifications.
+     */
     private static final long POLL_MS = 30_000;
     private final Handler poller = new Handler(Looper.getMainLooper());
-    private final Runnable poll = this::checkNotifications;
+    private final Runnable poll = this::refreshData;
     private boolean visible = false;
 
     @Override
@@ -137,9 +144,11 @@ public class MainActivity extends Activity {
         // Coming back from Alerts / Notify: update badges, rooms, etc.
         if (page != null) page.refresh();
         visible = true;
-        if (account != null && account.isStudent()) {
+        if (account != null) {
+            // Refresh now if the data is older than 30 seconds, otherwise when it gets that old.
+            long age = System.currentTimeMillis() - SavedSession.cacheTime(this);
             poller.removeCallbacks(poll);
-            poller.post(poll);
+            poller.postDelayed(poll, Math.max(0, Math.min(POLL_MS, POLL_MS - age)));
         }
     }
 
@@ -150,23 +159,31 @@ public class MainActivity extends Activity {
         poller.removeCallbacks(poll);
     }
 
-    /** Gets the student's notifications from the server and updates the badge. */
-    private void checkNotifications() {
-        String token = AppState.get().getToken();
-        if (!visible || account == null || !account.isStudent() || token == null) return;
+    /** Gets fresh data from the server and redraws the current tab. */
+    private void refreshData() {
+        if (!visible || account == null || AppState.get().getToken() == null) return;
+        final boolean wasOffline = AppState.get().isOffline();
 
-        ApiClient.notifications(token, (json, error) -> {
+        DataSync.refresh(this, (result, message) -> {
             if (isFinishing() || AppState.get().getAccount() != account) return;
-            if (ApiClient.sessionExpired(json)) {
+            if (result == DataSync.EXPIRED) {
                 logout();
                 return;
             }
-            if (ApiClient.ok(json)) {
-                AppState.get().setAlerts(StudentMapper.alerts(ApiClient.data(json), account.student.program));
-                Notifier.showNew(this, ApiClient.data(json), false);
-                if (page != null) page.refresh();
+            if (result == DataSync.OFFLINE && !wasOffline) {
+                Toast.makeText(this, "No internet connection. Showing your saved data.", Toast.LENGTH_LONG).show();
+            } else if (result == DataSync.OK && wasOffline) {
+                Toast.makeText(this, "Back online. Your schedule is up to date.", Toast.LENGTH_SHORT).show();
             }
-            if (visible) poller.postDelayed(poll, POLL_MS);
+            if (result == DataSync.OK && account.isStudent()) {
+                JSONObject alerts = SavedSession.cache(this, SavedSession.CACHE_ALERTS);
+                if (alerts != null) Notifier.showNew(this, ApiClient.data(alerts), false);
+            }
+            if (page != null) page.refresh();
+            if (visible) {
+                poller.removeCallbacks(poll);
+                poller.postDelayed(poll, POLL_MS);
+            }
         });
     }
 

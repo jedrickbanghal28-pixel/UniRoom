@@ -119,6 +119,13 @@
             </button>
 
             <button
+                class="nav-button"
+                onclick="showAdminPage('adminSetup', this)"
+            >
+                Academic Setup
+            </button>
+
+            <button
                 class="nav-button logout-button"
                 onclick="logout()"
             >
@@ -746,6 +753,158 @@
 
         </section>
 
+        <!-- ADMIN ACADEMIC SETUP (sections, subjects, rooms) -->
+
+        <section
+            class="page"
+            id="adminSetup"
+        >
+
+            <div class="page-heading">
+
+                <h1>Academic Setup</h1>
+
+                <p>
+                    Add, edit and remove the sections, subjects and rooms that schedules and
+                    accounts use. Fields marked with <span class="req">*</span> are required.
+                </p>
+
+            </div>
+
+
+            <div class="tab-bar" role="tablist">
+                <button class="tab-button active" onclick="showSetupTab('setupSections', this)">Sections</button>
+                <button class="tab-button" onclick="showSetupTab('setupSubjects', this)">Subjects</button>
+                <button class="tab-button" onclick="showSetupTab('setupRooms', this)">Rooms</button>
+            </div>
+
+
+            <!-- ========== SECTIONS ========== -->
+            <div class="tab-panel" id="setupSections">
+
+                <div class="panel form-panel wide-form" id="sectionForm">
+                    <h3 id="sectionFormTitle">Add Section</h3>
+                    <div class="form-grid">
+                        <div>
+                            <label for="secName">Section Name <span class="req">*</span></label>
+                            <input type="text" id="secName" placeholder="e.g. BSIT-A2" data-required data-label="Section name" autocomplete="off">
+                        </div>
+                        <div>
+                            <label for="secDepartment">Department <span class="req">*</span></label>
+                            <select id="secDepartment" data-required data-label="Department"></select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="primary-btn" id="secSaveButton" onclick="saveSection()">Save Section</button>
+                        <button class="secondary-btn hidden" id="secCancelButton" onclick="resetSetupForm('section')">Cancel edit</button>
+                    </div>
+                    <p class="form-message" id="sectionMessage"></p>
+                </div>
+
+                <div class="panel">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr><th>Section</th><th>Department</th><th>Students</th><th>Home room</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="sectionsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- ========== SUBJECTS ========== -->
+            <div class="tab-panel hidden" id="setupSubjects">
+
+                <div class="panel form-panel wide-form" id="subjectForm">
+                    <h3 id="subjectFormTitle">Add Subject</h3>
+                    <div class="form-grid">
+                        <div>
+                            <label for="subCode">Subject Code <span class="req">*</span></label>
+                            <input type="text" id="subCode" placeholder="e.g. ITE 031" data-required data-label="Subject code" autocomplete="off">
+                        </div>
+                        <div>
+                            <label for="subName">Subject Name <span class="req">*</span></label>
+                            <input type="text" id="subName" placeholder="e.g. IT Laboratory" data-required data-label="Subject name" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="primary-btn" id="subSaveButton" onclick="saveSubject()">Save Subject</button>
+                        <button class="secondary-btn hidden" id="subCancelButton" onclick="resetSetupForm('subject')">Cancel edit</button>
+                    </div>
+                    <p class="form-message" id="subjectMessage"></p>
+                </div>
+
+                <div class="panel">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr><th>Code</th><th>Subject</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="subjectsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- ========== ROOMS ========== -->
+            <div class="tab-panel hidden" id="setupRooms">
+
+                <div class="panel form-panel wide-form" id="roomSetupForm">
+                    <h3 id="roomFormTitle">Add Room</h3>
+                    <div class="form-grid">
+                        <div>
+                            <label for="rmName">Room Name <span class="req">*</span></label>
+                            <input type="text" id="rmName" placeholder="e.g. TH 312" data-required data-label="Room name" autocomplete="off">
+                        </div>
+                        <div>
+                            <label for="rmBuilding">Building <span class="req">*</span></label>
+                            <input type="text" id="rmBuilding" value="Tech Hub" data-required data-label="Building" autocomplete="off">
+                        </div>
+                        <div>
+                            <label for="rmFloor">Floor <span class="req">*</span></label>
+                            <input type="number" id="rmFloor" min="0" max="50" step="1" placeholder="e.g. 3" data-required data-label="Floor">
+                        </div>
+                        <div>
+                            <label for="rmCapacity">Capacity <span class="req">*</span></label>
+                            <input type="number" id="rmCapacity" min="1" max="1000" step="1" placeholder="e.g. 40" data-required data-label="Capacity">
+                        </div>
+                        <div>
+                            <label for="rmStatus">Status <span class="req">*</span></label>
+                            <select id="rmStatus" data-required data-label="Status">
+                                <option value="Available">Available</option>
+                                <option value="Reserved">Reserved</option>
+                                <option value="Occupied">Occupied</option>
+                                <option value="Maintenance">Maintenance</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="primary-btn" id="rmSaveButton" onclick="saveRoom()">Save Room</button>
+                        <button class="secondary-btn hidden" id="rmCancelButton" onclick="resetSetupForm('room')">Cancel edit</button>
+                    </div>
+                    <p class="form-message" id="roomSetupMessage"></p>
+                </div>
+
+                <div class="panel">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr><th>Room</th><th>Building</th><th>Floor</th><th>Capacity</th><th>Status</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="roomsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
     </main>
 
 </div>
@@ -1098,7 +1257,7 @@
 
             <div class="panel form-panel wide-form" id="scheduleForm">
 
-                <h3>Add Schedule</h3>
+                <h3 id="scheduleFormTitle">Add Schedule</h3>
 
                 <p class="form-hint">
                     Fields marked with <span class="req">*</span> are required.
@@ -1156,13 +1315,25 @@
 
                 <div class="conflict-box hidden" id="scheduleConflicts" role="alert"></div>
 
-                <button
-                    class="primary-btn"
-                    id="saveScheduleButton"
-                    onclick="addSchedule()"
-                >
-                    Save Schedule
-                </button>
+                <div class="form-actions">
+
+                    <button
+                        class="primary-btn"
+                        id="saveScheduleButton"
+                        onclick="addSchedule()"
+                    >
+                        Save Schedule
+                    </button>
+
+                    <button
+                        class="secondary-btn hidden"
+                        id="cancelEditButton"
+                        onclick="cancelEditSchedule()"
+                    >
+                        Cancel edit
+                    </button>
+
+                </div>
 
                 <p
                     class="form-message"
@@ -1320,6 +1491,7 @@
 <script src="script.js"></script>
 <script src="accounts.js"></script>
 <script src="schedule.js"></script>
+<script src="setup.js"></script>
 
 </body>
 </html>
