@@ -18,7 +18,6 @@ import android.widget.TextView;
 import com.uniroom.app.R;
 import com.uniroom.app.data.ApiClient;
 import com.uniroom.app.data.AppState;
-import com.uniroom.app.data.DemoData;
 import com.uniroom.app.model.Account;
 import com.uniroom.app.model.Program;
 import com.uniroom.app.model.Room;
@@ -90,10 +89,11 @@ public class SendNotificationActivity extends Activity {
                     update();
                 });
 
-        // From (my rooms) -> To (any 3rd floor room)
-        List<String> mine = AppState.get().assignedRooms();
+        // From (rooms in my schedule) -> To (any room in the database)
         List<String> all = new ArrayList<>();
-        for (Room r : DemoData.roomsOnFloor(3)) all.add(r.code);
+        for (Room r : AppState.get().rooms()) all.add(r.code);
+        List<String> mine = AppState.get().assignedRooms();
+        if (mine.isEmpty()) mine = all;
         fromRoom = new SelectField(findViewById(R.id.f_from), "From").setOptions(mine, "Room");
         if (!mine.isEmpty()) fromRoom.setValue(mine.get(0));
         toRoom = new SelectField(findViewById(R.id.f_to), "To").setOptions(all, "Room");
@@ -124,7 +124,7 @@ public class SendNotificationActivity extends Activity {
         row.removeAllViews();
         List<String> chips = new ArrayList<>();
         chips.add(ALL_SECTIONS);
-        for (String s : program.sections) chips.add(s);
+        chips.addAll(AppState.get().sectionsOf(program));
         for (final String s : chips) {
             boolean active = s.equals(section);
             TextView chip = new TextView(this);
@@ -213,7 +213,7 @@ public class SendNotificationActivity extends Activity {
         final String body = previewBody.getText().toString();
         final String target = ALL_SECTIONS.equals(section) ? "" : section;
 
-        ApiClient.sendNotification(AppState.get().getToken(), program.name(), target,
+        ApiClient.sendNotification(AppState.get().getToken(), program.code, target,
                 transfer ? "transfer" : "announcement", title, body, (json, error) -> {
                     if (isFinishing()) return;
                     if (ApiClient.ok(json)) {

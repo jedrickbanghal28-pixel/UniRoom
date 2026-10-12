@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.uniroom.app.R;
 import com.uniroom.app.data.AppState;
 import com.uniroom.app.model.Account;
+import com.uniroom.app.model.Program;
 import com.uniroom.app.model.Student;
 import com.uniroom.app.model.Teacher;
 import com.uniroom.app.screens.MainActivity;
@@ -47,12 +48,18 @@ public class ProfileTab extends TabPage {
             Teacher t = a.teacher;
             name = t.fullName;
             initials = t.initials;
-            role = "Faculty · BSIT & BSMEDTECH";
+            StringBuilder handles = new StringBuilder();
+            for (Program p : AppState.get().programsTaught()) {
+                if (handles.length() > 0) handles.append(", ");
+                handles.append(p.label);
+            }
+            String programs = handles.length() == 0 ? "No classes scheduled yet" : handles.toString();
+            role = "Faculty · " + (handles.length() == 0 ? "UNIROOM" : programs);
             details = new String[][]{
                     {"Username", t.username},
                     {"Email", t.email},
-                    {"Subject", t.subject},
-                    {"Handles", "BS-IT, BS-MedTech"}};
+                    {"Subjects", t.subject},
+                    {"Handles", programs}};
         }
         ((TextView) find(R.id.profile_initials)).setText(initials);
         ((TextView) find(R.id.profile_name)).setText(name);

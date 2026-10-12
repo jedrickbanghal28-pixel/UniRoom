@@ -20,7 +20,8 @@ import java.nio.charset.StandardCharsets;
  * Accounts are created by the admin on the website. Students and faculty
  * sign in here with their username (or email) and password; the API answers
  * with their details and a login token. The token is sent with every
- * notification request ("Authorization: Bearer ...").
+ * request after sign-in ("Authorization: Bearer ..."), so the server only
+ * returns the signed-in user's own schedule and notifications.
  *
  * Uses only the standard Android classes (HttpURLConnection + org.json), so
  * no extra library is needed. Every call runs in the background and the
@@ -48,6 +49,9 @@ public final class ApiClient {
         public final int status;
         public final JSONObject json;
         public final String error;
+
+        /** True when the server could not be reached at all (no internet, timeout). */
+        public boolean offline() { return json == null && status == 0; }
 
         Result(int status, JSONObject json, String error) {
             this.status = status;
@@ -79,11 +83,22 @@ public final class ApiClient {
         async("POST", "change_password.php", body, null, cb);
     }
 
-    // ---------- Student data ----------
+    // ---------- Signed-in user (student or faculty) ----------
 
-    /** GET schedule.php?user_id= – the classes of the student's section. */
-    public static void schedule(int userId, Callback cb) {
-        async("GET", "schedule.php?user_id=" + userId, null, null, cb);
+    /** GET me.php – the signed-in user; for faculty also their subjects. Includes every section. */
+    public static void me(String token, Callback cb) {
+        async("GET", "me.php", null, token, cb);
+    }
+
+    /** GET my_schedule.php – a student's section classes, or every class a faculty member teaches. */
+    public static void mySchedule(String token, Callback cb) {
+        async("GET", "my_schedule.php", null, token, cb);
+    }
+
+    /** GET rooms_today.php – every room and the classes held in it today (live availability). */
+    public static void roomsToday(String token, Callback cb) {
+        String day = Clock.dayLong(Clock.todayIndex());
+        async("GET", "rooms_today.php?day=" + day, null, token, cb);
     }
 
     // ---------- Notifications ----------
@@ -136,6 +151,11 @@ public final class ApiClient {
             Result r = request(method, path, body, token);
             MAIN.post(() -> cb.done(r.json, r.error));
         }).start();
+    }
+
+    /** GET request that waits for the answer (call it from a background thread). */
+    public static Result getNow(String path, String token) {
+        return request("GET", path, null, token);
     }
 
     /** Sends one request and waits for the answer. Never call this on the main thread. */

@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.uniroom.app.R;
 import com.uniroom.app.data.ApiClient;
 import com.uniroom.app.data.AppState;
-import com.uniroom.app.data.StudentMapper;
+import com.uniroom.app.data.ApiMapper;
 import com.uniroom.app.model.Account;
 import com.uniroom.app.model.AppAlert;
 import com.uniroom.app.ui.Header;
@@ -54,7 +54,7 @@ public class AlertsActivity extends Activity {
         ApiClient.notifications(token, (json, error) -> {
             if (isFinishing()) return;
             if (ApiClient.ok(json)) {
-                AppState.get().setAlerts(StudentMapper.alerts(ApiClient.data(json), account.student.program));
+                AppState.get().setAlerts(ApiMapper.alerts(ApiClient.data(json), account.student.program));
                 render();
             } else if (AppState.get().myAlerts().isEmpty()) {
                 android.widget.Toast.makeText(this,

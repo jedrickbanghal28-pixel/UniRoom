@@ -11,12 +11,12 @@ import com.uniroom.app.model.ClassSession;
 /**
  * Time helpers.
  *
- * The prototype uses a fixed "demo clock" (Wednesday 23 September 2026, 7:40 AM) so that the
- * home screens always have classes to show. Set USE_DEMO_CLOCK to false to use the phone's real time.
+ * Uses the phone's real date and time. (USE_DEMO_CLOCK = true freezes the
+ * clock at Wednesday 23 September 2026, 7:40 AM – only for screenshots.)
  */
 public final class Clock {
 
-    public static final boolean USE_DEMO_CLOCK = true;
+    public static final boolean USE_DEMO_CLOCK = false;
 
     private Clock() {}
 

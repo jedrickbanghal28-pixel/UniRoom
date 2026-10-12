@@ -4,18 +4,22 @@ import com.uniroom.app.model.Account;
 import com.uniroom.app.model.AppAlert;
 import com.uniroom.app.model.ClassSession;
 import com.uniroom.app.model.Program;
+import com.uniroom.app.model.Room;
 import com.uniroom.app.model.Student;
 import com.uniroom.app.model.Teacher;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Everything the app remembers while it is running: who is signed in (with
- * their login token), the student's classes and notifications from the
- * database, the faculty program they are looking at and their rooms.
+ * their login token) and what was loaded from the database for them – their
+ * classes, the rooms with today's classes, the sections of each program and
+ * (students) their notifications. DataSync fills it in.
  */
 public final class AppState {
 
@@ -27,17 +31,25 @@ public final class AppState {
     }
 
     private Account account;
-    /** Login token from the API (sent with notification requests). */
+    /** Login token from the API (sent with every request). */
     private String token;
     /** Database id of the signed-in user. */
     private int userId;
-    /** The student's classes, loaded from the database. */
-    private List<ClassSession> studentSessions = new ArrayList<>();
-    /** The student's notifications, loaded from the database (newest first). */
+
+    /** Weekly classes: a student's section, or everything a faculty member teaches. */
+    private List<ClassSession> sessions = new ArrayList<>();
+    /** The student's notifications (newest first). */
     private List<AppAlert> alerts = new ArrayList<>();
+    /** All rooms (live status) and the classes held in them today. */
+    private List<Room> rooms = new ArrayList<>();
+    private List<ClassSession> todayInRooms = new ArrayList<>();
+    /** Sections of each program, from the database. */
+    private Map<Program, List<String>> sections = emptySections();
+
+    /** True while the app shows the offline copy because the server cannot be reached. */
+    private boolean offline = false;
 
     private Program facultyProgram = Program.BSIT;
-    private Map<Program, List<String>> assignedRooms = emptyAssignments();
 
     private AppState() {}
 
@@ -50,69 +62,110 @@ public final class AppState {
 
     public int getUserId() { return userId; }
 
-    /** Student account created by the admin, signed in through the API. */
-    public void signInStudent(Student s, int databaseId, String loginToken, List<ClassSession> sessions) {
+    public void signInStudent(Student s, int databaseId, String loginToken) {
+        reset();
         account = Account.of(s);
         userId = databaseId;
         token = loginToken;
-        studentSessions = sessions == null ? new ArrayList<ClassSession>() : sessions;
-        alerts = new ArrayList<>();
     }
 
-    /** Faculty account created by the admin, signed in through the API. */
     public void signInFaculty(Teacher t, int databaseId, String loginToken) {
+        reset();
         account = Account.of(t);
         userId = databaseId;
         token = loginToken;
-        studentSessions = new ArrayList<>();
-        alerts = new ArrayList<>();
-        facultyProgram = Program.BSIT;
-        assignedRooms = DemoData.startingRoomsFor(t.id);
     }
 
     public void logout() {
+        reset();
         account = null;
         token = null;
         userId = 0;
-        studentSessions = new ArrayList<>();
-        alerts = new ArrayList<>();
     }
 
-    private static Map<Program, List<String>> emptyAssignments() {
-        Map<Program, List<String>> m = new HashMap<>();
-        m.put(Program.BSIT, new ArrayList<String>());
-        m.put(Program.BSMT, new ArrayList<String>());
+    private void reset() {
+        sessions = new ArrayList<>();
+        alerts = new ArrayList<>();
+        rooms = new ArrayList<>();
+        todayInRooms = new ArrayList<>();
+        sections = emptySections();
+        offline = false;
+        facultyProgram = Program.BSIT;
+    }
+
+    private static Map<Program, List<String>> emptySections() {
+        Map<Program, List<String>> m = new EnumMap<>(Program.class);
+        for (Program p : Program.values()) m.put(p, new ArrayList<String>());
         return m;
     }
+
+    // ---------- Data from the server ----------
+    public void setSessions(List<ClassSession> fresh) {
+        sessions = fresh == null ? new ArrayList<ClassSession>() : new ArrayList<>(fresh);
+    }
+
+    public void setRooms(List<Room> fresh, List<ClassSession> today) {
+        rooms = fresh == null ? new ArrayList<Room>() : new ArrayList<>(fresh);
+        todayInRooms = today == null ? new ArrayList<ClassSession>() : new ArrayList<>(today);
+    }
+
+    public void setSections(Map<Program, List<String>> fresh) {
+        if (fresh != null) sections = fresh;
+    }
+
+    public boolean isOffline() { return offline; }
+
+    public void setOffline(boolean value) { offline = value; }
 
     // ---------- Faculty program switcher ----------
     public Program getFacultyProgram() { return facultyProgram; }
 
     public void setFacultyProgram(Program p) { facultyProgram = p; }
 
+    /** Sections of a program, e.g. BSMT → [BSMT-A1, BSMT-A2]. */
+    public List<String> sectionsOf(Program p) {
+        return new ArrayList<>(sections.get(p));
+    }
+
     // ---------- Timetable ----------
-    /** Classes of the signed-in student's section, or of the teacher for the current portal. */
+    /** Classes of the signed-in student's section, or of the teacher for the current program. */
     public List<ClassSession> mySessions() {
         List<ClassSession> out = new ArrayList<>();
         if (account == null) return out;
-        if (account.isStudent()) return new ArrayList<>(studentSessions);
-        for (ClassSession s : DemoData.SESSIONS) {
-            if (s.teacherId.equals(account.teacher.id) && s.program == facultyProgram) out.add(s);
-        }
+        if (account.isStudent()) return new ArrayList<>(sessions);
+        for (ClassSession s : sessions) if (s.program == facultyProgram) out.add(s);
         return out;
     }
 
-    // ---------- Faculty rooms ----------
-    public List<String> assignedRooms() { return assignedRooms.get(facultyProgram); }
-
-    public void addRoom(String code) {
-        List<String> list = assignedRooms.get(facultyProgram);
-        if (!list.contains(code)) list.add(code);
+    /** Programs a faculty member teaches in (from their schedule). */
+    public List<Program> programsTaught() {
+        Set<Program> out = new LinkedHashSet<>();
+        for (ClassSession s : sessions) out.add(s.program);
+        return new ArrayList<>(out);
     }
 
-    public void removeRoom(String code) { assignedRooms.get(facultyProgram).remove(code); }
+    // ---------- Rooms ----------
+    public List<Room> rooms() { return new ArrayList<>(rooms); }
 
-    // ---------- Notifications (from the database) ----------
+    /** Classes held in any room today (for "Today in this room"). */
+    public List<ClassSession> todayInRooms() { return new ArrayList<>(todayInRooms); }
+
+    public Room findRoom(String code) {
+        for (Room r : rooms) if (r.code.equals(code)) return r;
+        return null;
+    }
+
+    /**
+     * Faculty: the rooms they teach in for the current program. These come from
+     * the schedule the admin set up, so they are the same on every phone.
+     */
+    public List<String> assignedRooms() {
+        Set<String> codes = new LinkedHashSet<>();
+        for (ClassSession s : mySessions()) codes.add(s.room);
+        return new ArrayList<>(codes);
+    }
+
+    // ---------- Notifications ----------
     public List<AppAlert> myAlerts() {
         if (account == null || !account.isStudent()) return new ArrayList<>();
         return new ArrayList<>(alerts);

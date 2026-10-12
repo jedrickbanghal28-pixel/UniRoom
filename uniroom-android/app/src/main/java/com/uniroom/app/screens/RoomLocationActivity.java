@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.uniroom.app.R;
 import com.uniroom.app.data.AppState;
-import com.uniroom.app.data.DemoData;
+import com.uniroom.app.data.RoomCatalog;
 import com.uniroom.app.model.Account;
 import com.uniroom.app.model.RoomLocation;
 import com.uniroom.app.ui.Rows;
@@ -29,7 +29,7 @@ public class RoomLocationActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         String roomCode = getIntent().getStringExtra(EXTRA_ROOM);
-        RoomLocation loc = roomCode != null ? DemoData.locationFor(roomCode) : null;
+        RoomLocation loc = roomCode != null ? RoomCatalog.locationFor(roomCode) : null;
         if (loc == null) { finish(); return; }
 
         setContentView(R.layout.activity_room_location);

@@ -31,6 +31,29 @@ def _i(data, key):
         return 0
 
 
+ANY_ROLE = ["admin", "faculty", "student"]
+
+
+def require_login(token):
+    """Any signed-in user (admin, faculty or student)."""
+    return require_role(token, ANY_ROLE)
+
+
+def _own_id(token, user_id, roles):
+    """
+    The user id an endpoint may read. Students and faculty may only read their
+    own records; the admin may read anyone's. With no user_id given, the
+    signed-in user's own id is used.
+    """
+    tok = require_role(token, roles)
+    me = int(tok["uid"])
+    if not user_id:
+        return me
+    if tok["role"] != "admin" and int(user_id) != me:
+        raise ApiError(403, "You can only view your own records.")
+    return int(user_id)
+
+
 def _db_error(e, conflict_msg, default="Database error."):
     if isinstance(e, psycopg.errors.UniqueViolation):
         raise ApiError(409, conflict_msg)
@@ -476,6 +499,7 @@ def admin_department_students(conn, data, query, token, dept_id=None):
 
 # =================================================================== sections
 def sections_list(conn, data, query, token):
+    require_login(token)
     params, where = {}, "TRUE"
     if _i(query, "department_id"):
         where, params = "s.department_id = %(d)s", {"d": _i(query, "department_id")}
@@ -539,6 +563,7 @@ ROOM_COLS = "id, room_name, building, floor, capacity, status"
 
 
 def rooms_list(conn, data, query, token):
+    require_login(token)
     q = _s(query, "search")
     if not q:
         rows = all_rows(conn, f"SELECT {ROOM_COLS} FROM rooms ORDER BY building, room_name")
@@ -550,6 +575,7 @@ def rooms_list(conn, data, query, token):
 
 
 def room_get(conn, data, query, token, room_id):
+    require_login(token)
     r = one(conn, f"SELECT {ROOM_COLS} FROM rooms WHERE id = %(id)s", {"id": room_id})
     if not r:
         raise ApiError(404, "Room not found.")
@@ -557,6 +583,7 @@ def room_get(conn, data, query, token, room_id):
 
 
 def room_save(conn, data, query, token, room_id=None):
+    require_role(token, ["admin"])
     fields = ["room_name", "building", "floor", "capacity", "status"]
     for f in fields:
         if _s(data, f) == "":
@@ -582,6 +609,7 @@ def room_save(conn, data, query, token, room_id=None):
 
 
 def room_delete(conn, data, query, token, room_id):
+    require_role(token, ["admin"])
     try:
         cur = conn.execute("DELETE FROM rooms WHERE id = %(id)s", {"id": room_id})
     except psycopg.errors.ForeignKeyViolation:
@@ -595,10 +623,12 @@ def room_delete(conn, data, query, token, room_id):
 
 # =================================================================== subjects
 def subjects_list(conn, data, query, token):
+    require_login(token)
     return {"success": True, "subjects": all_rows(conn, "SELECT id, code, name FROM subjects ORDER BY code, name")}
 
 
 def subject_get(conn, data, query, token, subject_id):
+    require_login(token)
     s = one(conn, "SELECT id, code, name FROM subjects WHERE id = %(id)s", {"id": subject_id})
     if not s:
         raise ApiError(404, "Subject not found.")
@@ -612,11 +642,18 @@ def subject_save(conn, data, query, token, subject_id=None):
                                                          ("name", name, "Subject name is required.")) if not v]
     if errors:
         raise ApiError(422, REQUIRED_MSG, errors=errors)
-    if subject_id is None:
-        row = one(conn, "INSERT INTO subjects (code, name) VALUES (%(c)s, %(n)s) RETURNING id, code, name", {"c": code, "n": name})
-        return {"success": True, "message": "Subject added successfully.", "subject": row}
-    row = one(conn, "UPDATE subjects SET code=%(c)s, name=%(n)s WHERE id=%(id)s RETURNING id, code, name",
-              {"c": code, "n": name, "id": subject_id})
+    if one(conn, "SELECT 1 FROM subjects WHERE upper(code) = %(c)s AND lower(name) = lower(%(n)s) AND id <> %(id)s",
+           {"c": code, "n": name, "id": subject_id or 0}):
+        raise ApiError(409, "A subject with this code and name already exists.",
+                       errors=[{"field": "code", "message": "This subject already exists."}])
+    try:
+        if subject_id is None:
+            row = one(conn, "INSERT INTO subjects (code, name) VALUES (%(c)s, %(n)s) RETURNING id, code, name", {"c": code, "n": name})
+            return {"success": True, "message": "Subject added successfully.", "subject": row}
+        row = one(conn, "UPDATE subjects SET code=%(c)s, name=%(n)s WHERE id=%(id)s RETURNING id, code, name",
+                  {"c": code, "n": name, "id": subject_id})
+    except psycopg.Error as e:
+        _db_error(e, "A subject with this code and name already exists.", "Save operation failed.")
     if not row:
         raise ApiError(404, "Subject not found.")
     return {"success": True, "message": "Subject updated successfully.", "subject": row}
@@ -637,12 +674,14 @@ def subject_delete(conn, data, query, token, subject_id):
 
 # =================================================================== faculty records
 def faculty_list(conn, data, query, token):
+    require_login(token)
     rows = all_rows(conn, """SELECT f.id, f.first_name, f.last_name, COALESCE(u.email, f.email) AS email, f.user_id
                              FROM faculty f LEFT JOIN users u ON u.id = f.user_id ORDER BY f.last_name, f.first_name""")
     return {"success": True, "faculty": rows}
 
 
 def faculty_get(conn, data, query, token, faculty_id):
+    require_login(token)
     f = one(conn, """SELECT f.id, f.first_name, f.last_name, COALESCE(u.email, f.email) AS email, f.user_id
                      FROM faculty f LEFT JOIN users u ON u.id = f.user_id WHERE f.id = %(id)s""", {"id": faculty_id})
     if not f:
@@ -668,6 +707,7 @@ DAY_ORDER = "array_position(ARRAY['Monday','Tuesday','Wednesday','Thursday','Fri
 
 
 def schedules_list(conn, data, query, token):
+    require_login(token)
     where, params = ["TRUE"], {}
     for key in ("section_id", "room_id", "faculty_id", "subject_id"):
         if _i(query, key):
@@ -681,6 +721,7 @@ def schedules_list(conn, data, query, token):
 
 
 def schedule_get(conn, data, query, token, schedule_id):
+    require_login(token)
     s = one(conn, f"{SCHEDULE_SELECT} WHERE sc.id = %(id)s", {"id": schedule_id})
     if not s:
         raise ApiError(404, "Schedule not found.")
@@ -688,6 +729,7 @@ def schedule_get(conn, data, query, token, schedule_id):
 
 
 def schedule_options(conn, data, query, token):
+    require_login(token)
     return {"success": True,
             "sections": all_rows(conn, "SELECT id, name FROM sections ORDER BY name"),
             "subjects": all_rows(conn, "SELECT id, code, name FROM subjects ORDER BY code"),
@@ -777,6 +819,7 @@ def schedule_delete(conn, data, query, token, schedule_id):
 
 # =================================================================== section home rooms
 def section_rooms_list(conn, data, query, token):
+    require_login(token)
     return {"success": True, "section_rooms": all_rows(conn, """
         SELECT s.id AS section_id, s.name AS section, r.id AS room_id, r.room_name AS room, r.building, r.floor
         FROM section_rooms sr JOIN sections s ON s.id = sr.section_id JOIN rooms r ON r.id = sr.room_id
@@ -784,6 +827,7 @@ def section_rooms_list(conn, data, query, token):
 
 
 def assign_room(conn, data, query, token, section_id=None):
+    require_role(token, ["admin", "faculty"])
     section_id = section_id if section_id is not None else _i(data, "section_id")
     room_id = _i(data, "room_id")
     if section_id <= 0 or room_id <= 0:
@@ -807,7 +851,7 @@ def unassign_room(conn, data, query, token, section_id):
 
 # =================================================================== student portal (Android app)
 def student_schedule(conn, data, query, token, user_id=None):
-    uid = user_id if user_id is not None else _i(query, "user_id")
+    uid = _own_id(token, user_id if user_id is not None else _i(query, "user_id"), ANY_ROLE)
     rows = all_rows(conn, """
         SELECT sc.id, sub.code AS subject_code, sub.name AS subject_name, sc.day_of_week,
                TO_CHAR(sc.start_time, 'HH24:MI') AS start_time, TO_CHAR(sc.end_time, 'HH24:MI') AS end_time,
@@ -820,7 +864,7 @@ def student_schedule(conn, data, query, token, user_id=None):
 
 
 def student_room(conn, data, query, token, user_id=None):
-    uid = user_id if user_id is not None else _i(query, "user_id")
+    uid = _own_id(token, user_id if user_id is not None else _i(query, "user_id"), ANY_ROLE)
     if uid <= 0:
         raise ApiError(400, "User ID is required.")
     room = one(conn, """
@@ -836,7 +880,7 @@ def student_room(conn, data, query, token, user_id=None):
 
 
 def profile(conn, data, query, token, user_id=None):
-    uid = user_id if user_id is not None else _i(query, "user_id")
+    uid = _own_id(token, user_id if user_id is not None else _i(query, "user_id"), ANY_ROLE)
     u = one(conn, """
         SELECT u.id, u.first_name, u.last_name, u.student_id, u.username, u.email, u.contact_number, u.role,
                s.name AS section_name, d.code AS program
@@ -861,7 +905,7 @@ def _faculty_department(conn, uid):
 
 
 def faculty_dashboard(conn, data, query, token, user_id=None):
-    uid = user_id if user_id is not None else _i(query, "user_id")
+    uid = _own_id(token, user_id if user_id is not None else _i(query, "user_id"), ["faculty", "admin"])
     if uid <= 0:
         raise ApiError(400, "Invalid user ID.")
     f = one(conn, """
@@ -884,7 +928,8 @@ def faculty_dashboard(conn, data, query, token, user_id=None):
 
 
 def faculty_members(conn, data, query, token, user_id=None):
-    dept = _faculty_department(conn, user_id if user_id is not None else _i(query, "user_id"))
+    dept = _faculty_department(conn, _own_id(token, user_id if user_id is not None else _i(query, "user_id"),
+                                             ["faculty", "admin"]))
     rows = all_rows(conn, """
         SELECT f.id, f.first_name, f.last_name, COALESCE(u.email, f.email) AS email,
           (SELECT string_agg(DISTINCT sub.code || ' – ' || sub.name, ', ') FROM faculty_subjects fs
@@ -907,18 +952,23 @@ def faculty_members(conn, data, query, token, user_id=None):
 
 
 def faculty_schedule(conn, data, query, token, user_id=None):
-    dept = _faculty_department(conn, user_id if user_id is not None else _i(query, "user_id"))
+    dept = _faculty_department(conn, _own_id(token, user_id if user_id is not None else _i(query, "user_id"),
+                                             ["faculty", "admin"]))
     rows = all_rows(conn, """
-        SELECT s.id, sec.name AS section, sub.name AS subject, r.room_name AS room,
-               CONCAT(f.first_name, ' ', f.last_name) AS faculty, s.day_of_week, s.start_time, s.end_time
+        SELECT s.id, s.section_id, sec.name AS section, s.subject_id, sub.code AS subject_code, sub.name AS subject,
+               s.room_id, r.room_name AS room, s.faculty_id, CONCAT(f.first_name, ' ', f.last_name) AS faculty,
+               s.day_of_week, TO_CHAR(s.start_time, 'HH24:MI') AS start_time, TO_CHAR(s.end_time, 'HH24:MI') AS end_time
         FROM schedules s JOIN sections sec ON sec.id = s.section_id JOIN subjects sub ON sub.id = s.subject_id
         JOIN rooms r ON r.id = s.room_id JOIN faculty f ON f.id = s.faculty_id
-        WHERE sec.department_id = %(d)s ORDER BY s.id""", {"d": dept})
+        WHERE sec.department_id = %(d)s
+        ORDER BY array_position(ARRAY['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'], s.day_of_week),
+                 s.start_time, sec.name""", {"d": dept})
     return {"success": True, "schedules": rows}
 
 
 def faculty_students(conn, data, query, token, user_id=None):
-    dept = _faculty_department(conn, user_id if user_id is not None else _i(query, "user_id"))
+    dept = _faculty_department(conn, _own_id(token, user_id if user_id is not None else _i(query, "user_id"),
+                                             ["faculty", "admin"]))
     rows = all_rows(conn, """
         SELECT u.id, u.student_id, u.first_name, u.last_name, u.email, s.name AS section
         FROM users u JOIN sections s ON s.id = u.section_id
@@ -1067,6 +1117,7 @@ FS_SELECT = """
 
 
 def faculty_subjects_list(conn, data, query, token):
+    require_login(token)
     where, params = ["TRUE"], {}
     for key in ("faculty_id", "subject_id", "department_id"):
         if _i(query, key):
@@ -1104,6 +1155,7 @@ def faculty_subject_delete(conn, data, query, token, faculty_id, subject_id, dep
 
 # =================================================================== section_rooms (get one)
 def section_room_get(conn, data, query, token, section_id):
+    require_login(token)
     row = one(conn, """SELECT s.id AS section_id, s.name AS section, r.id AS room_id, r.room_name AS room, r.building, r.floor
                        FROM section_rooms sr JOIN sections s ON s.id = sr.section_id JOIN rooms r ON r.id = sr.room_id
                        WHERE sr.section_id = %(s)s""", {"s": section_id})
@@ -1209,3 +1261,87 @@ def password_token_delete(conn, data, query, token, token_id):
     if cur.rowcount == 0:
         raise ApiError(404, "Setup link not found.")
     return {"success": True, "message": "Setup link deleted."}
+
+
+# =================================================================== Android app: signed-in user
+def me(conn, data, query, token):
+    """
+    The signed-in student's or faculty member's details. For faculty it also
+    lists the subjects they handle and the sections of each program, so the
+    app needs no built-in faculty list.
+    """
+    tok = require_role(token, ["student", "faculty"])
+    u = one(conn, """
+        SELECT u.id, u.username, u.email, u.first_name, u.last_name, u.student_id, u.employee_id, u.contact_number,
+               u.role, u.section_id, s.name AS section_name, d.code AS program
+        FROM users u LEFT JOIN sections s ON s.id = u.section_id
+        LEFT JOIN departments d ON d.id = COALESCE(u.department_id, s.department_id)
+        WHERE u.id = %(id)s""", {"id": tok["uid"]})
+    if not u:
+        raise ApiError(401, "Your session has expired. Please log in again.")
+    out = {"success": True, "user": u}
+    if u["role"] == "faculty":
+        f = one(conn, "SELECT id FROM faculty WHERE user_id = %(u)s ORDER BY id LIMIT 1", {"u": u["id"]})
+        out["faculty_id"] = f["id"] if f else None
+        # subjects assigned to them, plus the subjects of the classes they teach
+        out["subjects"] = all_rows(conn, """
+            SELECT code, name, program FROM (
+                SELECT sub.code, sub.name, d.code AS program
+                FROM faculty_subjects fs JOIN subjects sub ON sub.id = fs.subject_id
+                JOIN departments d ON d.id = fs.department_id WHERE fs.faculty_id = %(f)s
+                UNION
+                SELECT sub.code, sub.name, d.code
+                FROM schedules sc JOIN subjects sub ON sub.id = sc.subject_id
+                JOIN sections sec ON sec.id = sc.section_id JOIN departments d ON d.id = sec.department_id
+                WHERE sc.faculty_id = %(f)s) x
+            ORDER BY code, program""", {"f": f["id"] if f else 0})
+    out["sections"] = all_rows(conn, """
+        SELECT s.name, d.code AS program FROM sections s JOIN departments d ON d.id = s.department_id
+        ORDER BY d.code, s.name""")
+    return out
+
+
+def my_schedule(conn, data, query, token):
+    """
+    Weekly classes of the signed-in user: a student's section, or every class a
+    faculty member teaches (in all programs).
+    """
+    tok = require_role(token, ["student", "faculty"])
+    if tok["role"] == "student":
+        where = "sc.section_id = (SELECT section_id FROM users WHERE id = %(u)s)"
+    else:
+        where = "sc.faculty_id IN (SELECT id FROM faculty WHERE user_id = %(u)s)"
+    rows = all_rows(conn, f"""
+        SELECT sc.id, sub.code AS subject_code, sub.name AS subject_name, sc.day_of_week,
+               TO_CHAR(sc.start_time, 'HH24:MI') AS start_time, TO_CHAR(sc.end_time, 'HH24:MI') AS end_time,
+               r.room_name, r.building, r.floor, sc.faculty_id,
+               COALESCE(f.first_name || ' ' || f.last_name, 'TBA') AS faculty_name,
+               sec.name AS section_name, d.code AS program
+        FROM schedules sc JOIN subjects sub ON sub.id = sc.subject_id JOIN rooms r ON r.id = sc.room_id
+        LEFT JOIN faculty f ON f.id = sc.faculty_id JOIN sections sec ON sec.id = sc.section_id
+        JOIN departments d ON d.id = sec.department_id
+        WHERE {where}
+        ORDER BY {DAY_ORDER}, sc.start_time""", {"u": tok["uid"]})
+    return {"success": True, "data": rows}
+
+
+def rooms_today(conn, data, query, token):
+    """
+    Every room with the classes held in it on one day (default: today in the
+    Philippines), so the app can show live availability.
+    """
+    require_login(token)
+    day = _s(query, "day").lower().capitalize()
+    if day not in DAYS:
+        day = scalar(conn, "SELECT trim(to_char(now() AT TIME ZONE 'Asia/Manila', 'FMDay'))")
+    rooms = all_rows(conn, f"SELECT {ROOM_COLS} FROM rooms ORDER BY floor DESC, room_name")
+    classes = all_rows(conn, """
+        SELECT sc.id, sc.room_id, r.room_name, sub.code AS subject_code, sub.name AS subject_name,
+               TO_CHAR(sc.start_time, 'HH24:MI') AS start_time, TO_CHAR(sc.end_time, 'HH24:MI') AS end_time,
+               sec.name AS section_name, d.code AS program,
+               COALESCE(f.first_name || ' ' || f.last_name, 'TBA') AS faculty_name
+        FROM schedules sc JOIN rooms r ON r.id = sc.room_id JOIN subjects sub ON sub.id = sc.subject_id
+        JOIN sections sec ON sec.id = sc.section_id JOIN departments d ON d.id = sec.department_id
+        LEFT JOIN faculty f ON f.id = sc.faculty_id
+        WHERE sc.day_of_week = %(day)s ORDER BY sc.start_time""", {"day": day})
+    return {"success": True, "day": day, "rooms": rooms, "classes": classes}

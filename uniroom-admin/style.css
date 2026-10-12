@@ -1579,3 +1579,60 @@ td {
     font-size: 12px;
     padding: 8px 12px;
 }
+
+
+/* =====================================================
+   SCHEDULE LIST ACTIONS + ACADEMIC SETUP
+===================================================== */
+
+.schedule-row {
+    grid-template-columns: 0.8fr 1.3fr 1.2fr 1.6fr 0.7fr auto;
+    align-items: center;
+}
+
+.schedule-head {
+    background: none;
+    color: var(--muted);
+    font-weight: bold;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    padding-top: 0;
+    padding-bottom: 4px;
+}
+
+.schedule-row.is-editing,
+tr.is-editing td {
+    background: var(--lighter-maroon);
+}
+
+.row-actions {
+    white-space: nowrap;
+}
+
+.row-actions .link-btn:first-child {
+    margin-left: 0;
+}
+
+.link-btn.danger-link {
+    color: #b42318;
+}
+
+.link-btn:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+#adminSetup .form-panel {
+    margin-bottom: 18px;
+}
+
+@media (max-width: 800px) {
+    .schedule-row {
+        grid-template-columns: 1fr;
+    }
+
+    .schedule-head {
+        display: none;
+    }
+}

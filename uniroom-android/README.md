@@ -51,9 +51,11 @@ The sign-in is remembered on the phone until **Log out**. The phone needs intern
 ```
 app/src/main/java/com/uniroom/app/
   model/    Room, ClassSession, Student, Teacher, AppAlert, Program ...
-  data/     DemoData (rooms, timetable, users), AppState (who is signed in, alerts,
-            rooms), ApiClient (talks to the API), StudentMapper (API answer → Student / classes /
-            notifications), SavedSession (remembers the sign-in), Clock (time + date helpers)
+  data/     ApiClient (talks to the API), DataSync (loads the signed-in user's data and
+            refreshes it), ApiMapper (API answer → Student / Teacher / classes / rooms /
+            notifications), AppState (what is loaded right now), SavedSession (remembers
+            the sign-in + offline copy), RoomCatalog (room photos and directions),
+            Clock (time + date helpers)
   screens/  The activities (Login, Main, Alerts, Notify, RoomLocation)
   notify/   Notifier (phone notifications), NotificationCheckJob (background check)
   tabs/     The four bottom-navigation tabs shown inside MainActivity
@@ -68,12 +70,21 @@ app/src/main/res/
 ```
 
 ## Good to know
-- **Demo clock.** Like the prototype, the app pretends it is *Wednesday 23 September 2026, 7:40 AM*
-  so the home screens always show classes. To use the phone's real time, set
-  `USE_DEMO_CLOCK = false` in `data/Clock.java`.
+- **Real clock.** The app uses the phone's date and time. (For screenshots only,
+  `USE_DEMO_CLOCK = true` in `data/Clock.java` freezes it at Wednesday 23 September 2026, 7:40 AM.)
 - **Student vs faculty colours.** There are two themes in `values/themes.xml`. Layouts use
   `?attr/uniPrimary` and `?attr/uniPrimarySoft`, so the same XML turns blue or maroon.
-- **What comes from the database:** accounts, student schedules, notifications and read status. Faculty room assignments on *My Rooms* still use the built-in list.
+- **What comes from the database:** everything that changes – student and faculty accounts,
+  subjects, schedules, rooms (capacity, status, live availability), sections and
+  notifications. Any faculty account the admin creates can sign in. *My Rooms* lists the
+  rooms in the faculty member's schedule. Only the room photos and walking directions
+  are built in (`RoomCatalog`).
+- **Refresh.** While the app is open it refreshes every 30 seconds (schedule, rooms,
+  notifications), so a room change made by the admin shows up without signing in again.
+- **Offline.** The last schedule, rooms and notifications are saved on the phone. Without
+  internet the app opens with that copy and says it is offline.
+- **Security.** Every request after sign-in sends the login token. The server only returns
+  the signed-in user's own schedule and notifications.
 - **Moving the screens into another project.** Copy the `java/com/uniroom/app` folders and the
   `res` folders, then change `package com.uniroom.app` / `import com.uniroom.app.R` to your
   package name (Android Studio: right-click the package → *Refactor › Rename*), and copy the

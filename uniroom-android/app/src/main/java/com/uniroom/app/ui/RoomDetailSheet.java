@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.uniroom.app.R;
 import com.uniroom.app.data.Clock;
-import com.uniroom.app.data.DemoData;
+import com.uniroom.app.data.RoomCatalog;
 import com.uniroom.app.model.ClassSession;
 import com.uniroom.app.model.Room;
 import com.uniroom.app.model.RoomLocation;
@@ -43,7 +43,7 @@ public final class RoomDetailSheet {
 
         // "View room location" row (only for rooms that have a photo)
         View locRow = content.findViewById(R.id.rd_location);
-        final RoomLocation loc = DemoData.locationFor(room.code);
+        final RoomLocation loc = RoomCatalog.locationFor(room.code);
         if (loc != null) {
             ImageView thumb = content.findViewById(R.id.rd_location_image);
             thumb.setImageResource(loc.imageRes);
