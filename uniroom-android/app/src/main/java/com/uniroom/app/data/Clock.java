@@ -56,9 +56,19 @@ public final class Clock {
     public static Calendar today() { return dateOf(0, todayIndex()); }
 
     // ---------- Formatting ----------
+    /** "13:30" → 810. A missing or broken time gives 0 instead of an error. */
     public static int toMinutes(String time) {
-        String[] p = time.split(":");
-        return Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]);
+        try {
+            String[] p = time.trim().split(":");
+            return Integer.parseInt(p[0].trim()) * 60 + Integer.parseInt(p[1].trim().substring(0, 2));
+        } catch (RuntimeException e) {
+            return 0;
+        }
+    }
+
+    /** True for "HH:MM" (or "HH:MM:SS") times. */
+    public static boolean isTime(String time) {
+        return time != null && time.trim().matches("\\d{1,2}:\\d{2}(:\\d{2})?");
     }
 
     /** "13:00" -> "1:00 PM" */

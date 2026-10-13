@@ -70,6 +70,12 @@ app/src/main/res/
 ```
 
 ## Good to know
+- **Demo accounts.** Run `uniroom-api/sql/06_demo_accounts.sql` in Supabase once. The sign-in
+  screen then shows four buttons (2 BSIT, 2 BS MedTech students, password `Demo2026`). They are
+  real accounts, so schedule, rooms and notifications work. Set `SHOW_DEMO_ACCOUNTS = false` in
+  `LoginActivity` to hide the buttons.
+- **If the app ever closes because of an error**, the next start shows the error details
+  (with a *Copy details* button) and asks to sign in again instead of crashing again.
 - **Real clock.** The app uses the phone's date and time. (For screenshots only,
   `USE_DEMO_CLOCK = true` in `data/Clock.java` freezes it at Wednesday 23 September 2026, 7:40 AM.)
 - **Student vs faculty colours.** There are two themes in `values/themes.xml`. Layouts use

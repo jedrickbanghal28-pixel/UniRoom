@@ -19,7 +19,11 @@ public abstract class TabPage {
     public final View getView(ViewGroup parent) {
         if (view == null) {
             view = onCreateView(LayoutInflater.from(activity), parent);
-            refresh();
+            try {
+                refresh();
+            } catch (RuntimeException e) {
+                activity.screenProblem(e);   // show the screen anyway, never close the app
+            }
         }
         return view;
     }
