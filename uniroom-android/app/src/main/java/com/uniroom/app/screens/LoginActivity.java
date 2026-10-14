@@ -46,8 +46,9 @@ import org.json.JSONObject;
 public class LoginActivity extends Activity {
 
     /**
-     * Demo student accounts (real accounts in the database, created by
-     * uniroom-api/sql/06_demo_accounts.sql). Set to false to hide the buttons.
+     * Demo accounts (real accounts in the database, created by
+     * uniroom-api/sql/06_demo_accounts.sql and 07_demo_faculty.sql).
+     * Set to false to hide the buttons.
      */
     private static final boolean SHOW_DEMO_ACCOUNTS = true;
     private static final String DEMO_PASSWORD = "Demo2026";
@@ -56,6 +57,10 @@ public class LoginActivity extends Activity {
             {"BSIT · Bea", "demo.bsit2"},
             {"MedTech · Andrea", "demo.bsmt1"},
             {"MedTech · Paolo", "demo.bsmt2"},
+    };
+    private static final String[][] DEMO_FACULTY = {
+            {"Faculty · Prof. Cruz (BSIT)", "demo.fac.bsit"},
+            {"Faculty · Prof. Lim (MedTech)", "demo.fac.bsmt"},
     };
 
     /** Set when the screen is opened from a phone notification. */
@@ -128,9 +133,13 @@ public class LoginActivity extends Activity {
     private void buildDemoAccounts() {
         if (!SHOW_DEMO_ACCOUNTS) return;
         findViewById(R.id.demo_box).setVisibility(View.VISIBLE);
-        LinearLayout row = findViewById(R.id.demo_row);
+        addDemoChips(findViewById(R.id.demo_row), DEMO_ACCOUNTS);
+        addDemoChips(findViewById(R.id.demo_row_faculty), DEMO_FACULTY);
+    }
+
+    private void addDemoChips(LinearLayout row, String[][] accounts) {
         row.removeAllViews();
-        for (final String[] demo : DEMO_ACCOUNTS) {
+        for (final String[] demo : accounts) {
             TextView chip = new TextView(this);
             chip.setText(demo[0]);
             chip.setTextAppearance(R.style.T_SmallSemi);
@@ -139,7 +148,7 @@ public class LoginActivity extends Activity {
             chip.setPadding(Ui.dp(this, 14), 0, Ui.dp(this, 14), 0);
             chip.setBackgroundResource(R.drawable.bg_outline_pill);
             chip.setForeground(getDrawable(R.drawable.ripple_round_16));
-            chip.setContentDescription("Sign in as demo student " + demo[0]);
+            chip.setContentDescription("Sign in with the demo account " + demo[0]);
             chip.setOnClickListener(v -> {
                 if (loading) return;
                 username.setText(demo[1]);

@@ -189,7 +189,11 @@ def find_duplicates(conn, a, exclude_id=None):
 
 
 def unique_username(conn, email):
-    base = re.sub(r"[^a-z0-9._]", "", email.split("@")[0].lower())[:40] or "user"
+    local = email.split("@")[0]
+    # "school.inbox+juan.cruz@gmail.com" (Gmail plus address) → username "juan.cruz"
+    if "+" in local and local.split("+", 1)[1]:
+        local = local.split("+", 1)[1]
+    base = re.sub(r"[^a-z0-9._]", "", local.lower())[:40] or "user"
     for i in range(1, 1000):
         candidate = base if i == 1 else f"{base}{i}"
         if not one(conn, "SELECT 1 FROM users WHERE lower(username) = %(u)s LIMIT 1", {"u": candidate}):

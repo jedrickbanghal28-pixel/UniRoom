@@ -1,0 +1,8 @@
+﻿first_name,last_name,email,gender,age,role,department,section,student_id,employee_id,contact_number
+Liza,Ramos,uniroomsystem+liza.ramos@gmail.com,Female,19,student,BSIT,BSIT-A1,2026-3001,,
+Paulo,Reyes,,Male,19,student,BSIT,BSIT-A1,2026-3002,,
+Ella,Cruz,uniroomsystem+ella.cruz@gmail.com,Girl,19,student,BSMT,BSMT-A1,2026-3003,,
+Miguel,Tan,uniroomsystem+miguel.tan@gmail.com,Male,12,student,BSIT,BSIT-A1,2026-3004,,
+Nico,Flores,uniroomsystem+nico.flores@gmail.com,Male,20,student,BSIT,BSMT-A1,2026-3005,,
+Marco,Ramos,uniroomsystem+marco.ramos@gmail.com,Male,19,student,BSIT,BSIT-A1,DEMO-IT-01,,
+Sofia,Lopez,uniroomsystem+sofia.lopez@gmail.com,Female,19,student,BSMT,,,,

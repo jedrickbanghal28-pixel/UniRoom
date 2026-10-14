@@ -70,9 +70,10 @@ app/src/main/res/
 ```
 
 ## Good to know
-- **Demo accounts.** Run `uniroom-api/sql/06_demo_accounts.sql` in Supabase once. The sign-in
-  screen then shows four buttons (2 BSIT, 2 BS MedTech students, password `Demo2026`). They are
-  real accounts, so schedule, rooms and notifications work. Set `SHOW_DEMO_ACCOUNTS = false` in
+- **Demo accounts.** Run `uniroom-api/sql/06_demo_accounts.sql` and `07_demo_faculty.sql` in
+  Supabase once. The sign-in screen then shows buttons for 4 demo students (2 BSIT, 2 BS MedTech)
+  and 2 demo faculty (one per program), password `Demo2026`. They are real accounts, so
+  schedule, rooms and notifications work. Set `SHOW_DEMO_ACCOUNTS = false` in
   `LoginActivity` to hide the buttons.
 - **If the app ever closes because of an error**, the next start shows the error details
   (with a *Copy details* button) and asks to sign in again instead of crashing again.

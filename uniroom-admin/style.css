@@ -1636,3 +1636,24 @@ tr.is-editing td {
         display: none;
     }
 }
+
+/* Demo bulk files */
+.demo-files {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    background: #fafafa;
+}
+
+.demo-file-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    margin-top: 6px;
+}
+
+.demo-file-links .link-btn {
+    margin-left: 0;
+    font-size: 12px;
+}
