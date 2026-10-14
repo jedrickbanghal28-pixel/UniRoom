@@ -3,6 +3,8 @@
 
     <!-- Needed to sign students in through the UNIROOM API. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- The background notification check waits for a network connection (required by Android 14+). -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Phone notifications for room changes and announcements -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Keep the background notification check after the phone restarts -->

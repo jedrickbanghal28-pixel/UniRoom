@@ -26,12 +26,20 @@ public class NotificationCheckJob extends JobService {
                 .setPeriodic(15 * 60 * 1000L)
                 .setPersisted(true)   // keeps running after the phone restarts
                 .build();
-        c.getSystemService(JobScheduler.class).schedule(job);
+        try {
+            c.getSystemService(JobScheduler.class).schedule(job);
+        } catch (RuntimeException e) {
+            // Never close the app because the background check could not start;
+            // notifications still arrive while the app is open.
+            android.util.Log.e("UniRoom", "Background notification check not started", e);
+        }
     }
 
     /** Stops the background check (called on Log out). */
     public static void cancel(Context c) {
-        c.getSystemService(JobScheduler.class).cancel(JOB_ID);
+        try {
+            c.getSystemService(JobScheduler.class).cancel(JOB_ID);
+        } catch (RuntimeException ignored) { }
     }
 
     @Override

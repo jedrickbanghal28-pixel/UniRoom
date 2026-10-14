@@ -90,6 +90,10 @@ public final class Notifier {
                 .setAutoCancel(true)
                 .setContentIntent(pi)
                 .build();
-        c.getSystemService(NotificationManager.class).notify(id, n);
+        try {
+            c.getSystemService(NotificationManager.class).notify(id, n);
+        } catch (RuntimeException e) {
+            android.util.Log.e("UniRoom", "Could not show the phone notification", e);
+        }
     }
 }
