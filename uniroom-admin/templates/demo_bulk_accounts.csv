@@ -1,0 +1,9 @@
+﻿first_name,last_name,email,gender,age,role,department,section,student_id,employee_id,contact_number
+Carlo,Bautista,uniroomsystem+carlo.bautista@gmail.com,Male,19,student,BSIT,BSIT-A1,2026-1001,,09171110001
+Jessa,Villanueva,uniroomsystem+jessa.villanueva@gmail.com,Female,18,student,BSIT,BSIT-A1,2026-1002,,09171110002
+Mark,Aquino,uniroomsystem+mark.aquino@gmail.com,Male,20,student,BSIT,BSIT-A1,2026-1003,,
+Kristine,Navarro,uniroomsystem+kristine.navarro@gmail.com,Female,19,student,BSMT,BSMT-A1,2026-2001,,09171110004
+Joshua,Mercado,uniroomsystem+joshua.mercado@gmail.com,Male,19,student,BSMT,BSMT-A2,2026-2002,,
+Angela,Dizon,uniroomsystem+angela.dizon@gmail.com,Female,20,student,BSMT,BSMT-A2,2026-2003,,09171110006
+Ramon,Santiago,uniroomsystem+ramon.santiago@gmail.com,Male,41,faculty,BSIT,,,EMP-2026-01,09181110001
+Teresa,Castillo,uniroomsystem+teresa.castillo@gmail.com,Female,38,faculty,BSMT,,,EMP-2026-02,
