@@ -163,6 +163,37 @@
                     android:layout_marginTop="8dp"
                     android:text="Faculty accounts are set up by the registrar." />
 
+                <!-- Demo student accounts (real accounts in the database, see 06_demo_accounts.sql) -->
+                <LinearLayout
+                    android:id="@+id/demo_box"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        style="@style/T.CaptionSemi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:text="Demo accounts · tap one to sign in" />
+
+                    <HorizontalScrollView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="8dp"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:id="@+id/demo_row"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+                </LinearLayout>
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="0dp"

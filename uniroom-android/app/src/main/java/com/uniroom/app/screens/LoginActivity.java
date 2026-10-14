@@ -19,6 +19,7 @@ import com.uniroom.app.R;
 import com.uniroom.app.data.ApiClient;
 import com.uniroom.app.data.AppState;
 import com.uniroom.app.data.SavedSession;
+import com.uniroom.app.data.CrashLog;
 import com.uniroom.app.data.DataSync;
 import com.uniroom.app.notify.NotificationCheckJob;
 import com.uniroom.app.notify.Notifier;
@@ -43,6 +44,19 @@ import org.json.JSONObject;
  * The sign-in is remembered on the phone until Log out.
  */
 public class LoginActivity extends Activity {
+
+    /**
+     * Demo student accounts (real accounts in the database, created by
+     * uniroom-api/sql/06_demo_accounts.sql). Set to false to hide the buttons.
+     */
+    private static final boolean SHOW_DEMO_ACCOUNTS = true;
+    private static final String DEMO_PASSWORD = "Demo2026";
+    private static final String[][] DEMO_ACCOUNTS = {
+            {"BSIT · Juan", "demo.bsit1"},
+            {"BSIT · Bea", "demo.bsit2"},
+            {"MedTech · Andrea", "demo.bsmt1"},
+            {"MedTech · Paolo", "demo.bsmt2"},
+    };
 
     /** Set when the screen is opened from a phone notification. */
     public static final String EXTRA_OPEN_ALERTS = "open_alerts";
@@ -93,6 +107,13 @@ public class LoginActivity extends Activity {
         spinner = findViewById(R.id.sign_in_spinner);
 
         signInButton.setOnClickListener(v -> submit());
+        buildDemoAccounts();
+
+        // The app closed because of an error last time: show what happened.
+        if (CrashLog.pending(this) != null && CrashLog.wasFatal(this)) {
+            showLastError();
+            return;
+        }
 
         // Signed in before (and not logged out): go straight to the dashboard.
         JSONObject saved = SavedSession.user(this);
@@ -101,6 +122,61 @@ public class LoginActivity extends Activity {
             username.setText(saved.optString("username", ""));
             continueAs(saved, savedToken, true);
         }
+    }
+
+    /** "Demo accounts" buttons: fill in the username and password and sign in. */
+    private void buildDemoAccounts() {
+        if (!SHOW_DEMO_ACCOUNTS) return;
+        findViewById(R.id.demo_box).setVisibility(View.VISIBLE);
+        LinearLayout row = findViewById(R.id.demo_row);
+        row.removeAllViews();
+        for (final String[] demo : DEMO_ACCOUNTS) {
+            TextView chip = new TextView(this);
+            chip.setText(demo[0]);
+            chip.setTextAppearance(R.style.T_SmallSemi);
+            chip.setTextColor(getColor(R.color.ink));
+            chip.setGravity(android.view.Gravity.CENTER);
+            chip.setPadding(Ui.dp(this, 14), 0, Ui.dp(this, 14), 0);
+            chip.setBackgroundResource(R.drawable.bg_outline_pill);
+            chip.setForeground(getDrawable(R.drawable.ripple_round_16));
+            chip.setContentDescription("Sign in as demo student " + demo[0]);
+            chip.setOnClickListener(v -> {
+                if (loading) return;
+                username.setText(demo[1]);
+                password.setText(DEMO_PASSWORD);
+                submit();
+            });
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, Ui.dp(this, 36));
+            lp.setMarginEnd(Ui.dp(this, 8));
+            row.addView(chip, lp);
+        }
+    }
+
+    /** Shows the details of the error that closed the app last time (they can be copied). */
+    private void showLastError() {
+        final String details = CrashLog.pending(this);
+        CrashLog.clear(this);
+        TextView text = new TextView(this);
+        text.setText(details);
+        text.setTextIsSelectable(true);
+        text.setTextSize(11);
+        int pad = Ui.dp(this, 20);
+        text.setPadding(pad, Ui.dp(this, 8), pad, 0);
+        android.widget.ScrollView scroll = new android.widget.ScrollView(this);
+        scroll.addView(text);
+
+        new AlertDialog.Builder(this)
+                .setTitle("UniRoom closed unexpectedly")
+                .setMessage("Sorry about that. Please sign in again. If it happens again, tap Copy and send the details to the developers.")
+                .setView(scroll)
+                .setPositiveButton("OK", null)
+                .setNeutralButton("Copy details", (d, w) -> {
+                    android.content.ClipboardManager cm = getSystemService(android.content.ClipboardManager.class);
+                    cm.setPrimaryClip(android.content.ClipData.newPlainText("UniRoom error", details));
+                    Toast.makeText(this, "Copied", Toast.LENGTH_SHORT).show();
+                })
+                .show();
     }
 
     private void submit() {

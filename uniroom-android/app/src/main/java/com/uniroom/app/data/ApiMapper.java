@@ -109,7 +109,7 @@ public final class ApiMapper {
             JSONObject r = rows.optJSONObject(i);
             if (r == null) continue;
             int day = dayIndex(text(r, "day_of_week"));
-            if (day < 0) continue;
+            if (day < 0 || !validTimes(r)) continue;   // skip a class with a missing day or time
             out.add(session(r, day));
         }
         return out;
@@ -121,9 +121,13 @@ public final class ApiMapper {
         int today = Clock.todayIndex();
         for (int i = 0; rows != null && i < rows.length(); i++) {
             JSONObject r = rows.optJSONObject(i);
-            if (r != null) out.add(session(r, today));
+            if (r != null && validTimes(r)) out.add(session(r, today));
         }
         return out;
+    }
+
+    private static boolean validTimes(JSONObject r) {
+        return Clock.isTime(text(r, "start_time")) && Clock.isTime(text(r, "end_time"));
     }
 
     private static ClassSession session(JSONObject r, int day) {

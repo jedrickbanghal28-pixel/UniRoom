@@ -113,7 +113,14 @@ public class MainActivity extends Activity {
             default: page = new ProfileTab(this); break;
         }
         container.removeAllViews();
-        View v = page.getView(container);
+        View v;
+        try {
+            v = page.getView(container);
+        } catch (RuntimeException e) {
+            // Never close the app because one screen could not be drawn.
+            screenProblem(e);
+            v = new View(this);
+        }
         container.addView(v, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         v.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in));
 
@@ -142,7 +149,7 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         // Coming back from Alerts / Notify: update badges, rooms, etc.
-        if (page != null) page.refresh();
+        safeRefresh();
         visible = true;
         if (account != null) {
             // Refresh now if the data is older than 30 seconds, otherwise when it gets that old.
@@ -157,6 +164,21 @@ public class MainActivity extends Activity {
         super.onPause();
         visible = false;
         poller.removeCallbacks(poll);
+    }
+
+    /** Redraws the current tab; a problem is reported instead of closing the app. */
+    private void safeRefresh() {
+        if (page == null) return;
+        try {
+            page.refresh();
+        } catch (RuntimeException e) {
+            screenProblem(e);
+        }
+    }
+
+    public void screenProblem(RuntimeException e) {
+        android.util.Log.e("UniRoom", "Screen error", e);
+        Toast.makeText(this, "Part of this screen could not be shown: " + e, Toast.LENGTH_LONG).show();
     }
 
     /** Gets fresh data from the server and redraws the current tab. */
@@ -179,7 +201,7 @@ public class MainActivity extends Activity {
                 JSONObject alerts = SavedSession.cache(this, SavedSession.CACHE_ALERTS);
                 if (alerts != null) Notifier.showNew(this, ApiClient.data(alerts), false);
             }
-            if (page != null) page.refresh();
+            safeRefresh();
             if (visible) {
                 poller.removeCallbacks(poll);
                 poller.postDelayed(poll, POLL_MS);
@@ -209,7 +231,7 @@ public class MainActivity extends Activity {
 
     /** Called when the faculty program switcher changes: rebuild the current tab. */
     public void onProgramChanged() {
-        if (page != null) page.refresh();
+        safeRefresh();
     }
 
     public void logout() {
