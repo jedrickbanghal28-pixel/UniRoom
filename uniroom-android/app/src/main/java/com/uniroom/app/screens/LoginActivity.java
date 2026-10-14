@@ -50,7 +50,7 @@ public class LoginActivity extends Activity {
      * uniroom-api/sql/06_demo_accounts.sql and 07_demo_faculty.sql).
      * Set to false to hide the buttons.
      */
-    private static final boolean SHOW_DEMO_ACCOUNTS = true;
+    private static final boolean SHOW_DEMO_ACCOUNTS = false;
     private static final String DEMO_PASSWORD = "Demo2026";
     private static final String[][] DEMO_ACCOUNTS = {
             {"BSIT · Juan", "demo.bsit1"},
