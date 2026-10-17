@@ -362,7 +362,7 @@ def admin_update_user(conn, data, query, token, user_id):
         raise ApiError(404, "User not found.")
     if existing["role"] == "admin":
         raise ApiError(403, "Administrator accounts cannot be edited here.")
-    merged = {k: existing.get(k) for k in ("first_name", "last_name", "email", "gender", "age", "role",
+    merged = {k: existing.get(k) for k in ("first_name", "last_name", "middle_initial", "email", "gender", "age", "role",
                                            "department_id", "section_id", "student_id", "employee_id", "contact_number")}
     merged.update({k: v for k, v in data.items() if v is not None})
     lookup = acc.load_lookup(conn)
@@ -374,7 +374,7 @@ def admin_update_user(conn, data, query, token, user_id):
         raise ApiError(409, dups[0]["message"], errors=dups)
     try:
         conn.execute("""
-            UPDATE users SET first_name=%(first_name)s, last_name=%(last_name)s, email=%(email)s, gender=%(gender)s,
+            UPDATE users SET first_name=%(first_name)s, last_name=%(last_name)s, middle_initial=%(middle_initial)s, email=%(email)s, gender=%(gender)s,
                    age=%(age)s, role=%(role)s, department_id=%(department_id)s, section_id=%(section_id)s,
                    student_id=%(student_id)s, employee_id=%(employee_id)s, contact_number=%(contact_number)s
             WHERE id=%(id)s""", {**account, "student_id": account["student_id"] or None,
@@ -383,8 +383,9 @@ def admin_update_user(conn, data, query, token, user_id):
     except psycopg.Error as e:
         _db_error(e, "This email or student ID is already registered.")
     # keep the linked faculty record (used in schedules) the same as the account
-    conn.execute("UPDATE faculty SET first_name=%(f)s, last_name=%(l)s, email=%(e)s WHERE user_id=%(id)s",
-                 {"f": account["first_name"], "l": account["last_name"], "e": account["email"], "id": user_id})
+    conn.execute("UPDATE faculty SET first_name=%(f)s, last_name=%(l)s, middle_initial=%(m)s, email=%(e)s WHERE user_id=%(id)s",
+                 {"f": account["first_name"], "l": account["last_name"], "m": account["middle_initial"],
+                  "e": account["email"], "id": user_id})
     return admin_get_user(conn, data, query, token, user_id) | {"message": "User updated successfully."}
 
 

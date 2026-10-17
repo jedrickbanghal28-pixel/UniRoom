@@ -132,6 +132,7 @@ class SetPasswordIn(Model):
 class UserIn(Model):
     first_name: str = Field(..., examples=["Carlo"])
     last_name: str = Field(..., examples=["Reyes"])
+    middle_initial: Optional[str] = Field(None, max_length=3, examples=["D"])
     email: str = Field(..., examples=["carlo.reyes@example.edu"])
     gender: str = Field(..., examples=["Male"])
     age: int = Field(..., ge=15, le=100, examples=[19])
@@ -149,6 +150,7 @@ class UserIn(Model):
 class UserUpdateIn(Model):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    middle_initial: Optional[str] = Field(None, max_length=3)
     email: Optional[str] = None
     gender: Optional[str] = None
     age: Optional[int] = Field(None, ge=15, le=100)

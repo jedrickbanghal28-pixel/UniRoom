@@ -15,6 +15,10 @@
 --    The API already saves TRUE; now the database default says the same.
 ALTER TABLE users ALTER COLUMN must_change_password SET DEFAULT TRUE;
 
+-- 1b. Middle initial (optional) for accounts and faculty records.
+ALTER TABLE users   ADD COLUMN IF NOT EXISTS middle_initial TEXT;
+ALTER TABLE faculty ADD COLUMN IF NOT EXISTS middle_initial TEXT;
+
 -- 2. created_by points to the admin account that created the user.
 DO $$
 BEGIN
