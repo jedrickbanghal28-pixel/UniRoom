@@ -1026,7 +1026,7 @@ function showAdminPage(
             "Admin Dashboard",
 
         adminDepartments:
-            "Departments",
+            "Programs",
 
         adminUsers:
             "User Management",
@@ -1497,7 +1497,7 @@ async function openDepartment(departmentId) {
         departmentStudents = result.students || [];
         const dept = result.department || {};
         document.getElementById("departmentStudentsTitle").textContent =
-            (dept.code || "Department") + " students" + (dept.name ? " – " + dept.name : "");
+            (dept.code || "Program") + " students" + (dept.name ? " – " + dept.name : "");
 
         const sectionSelect = document.getElementById("deptSectionFilter");
         const sections = uniqueSorted(departmentStudents.map(function(s) { return s.section; }));
@@ -1540,7 +1540,7 @@ function renderDepartmentStudents() {
 
     if (rows.length === 0) {
         table.innerHTML = '<tr><td colspan="4">' +
-            (departmentStudents.length === 0 ? "No students in this department yet." : "No students match.") +
+            (departmentStudents.length === 0 ? "No students in this program yet." : "No students match.") +
             '</td></tr>';
         return;
     }

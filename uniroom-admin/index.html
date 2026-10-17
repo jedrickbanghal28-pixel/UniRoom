@@ -101,7 +101,7 @@
                 class="nav-button"
                 onclick="showAdminPage('adminDepartments', this)"
             >
-                Departments
+                Programs
             </button>
 
             <button
@@ -210,14 +210,14 @@
 
                 <div class="stat-card">
 
-                    <span>Departments</span>
+                    <span>Programs</span>
 
                     <strong id="totalDepartments">
                         0
                     </strong>
 
                     <small>
-                        School departments
+                        School programs
                     </small>
 
                 </div>
@@ -245,7 +245,7 @@
                 <div class="panel">
 
                     <div class="panel-title">
-                        <h3>Department Overview</h3>
+                        <h3>Program Overview</h3>
                     </div>
 
                     <div id="adminDepartmentOverview"></div>
@@ -296,10 +296,10 @@
 
             <div class="page-heading">
 
-                <h1>Departments</h1>
+                <h1>Programs</h1>
 
                 <p>
-                    View all school departments. Click a department to see its students.
+                    View all school programs. Click a program to see its students.
                 </p>
 
             </div>
@@ -368,7 +368,7 @@
 
                 <div class="filter-bar" style="margin-bottom:14px">
                     <select id="userCourseFilter" onchange="updateUserSectionFilter(); renderUsersTable()">
-                        <option value="">All courses</option>
+                        <option value="">All programs</option>
                     </select>
                     <select id="userSectionFilter" onchange="renderUsersTable()">
                         <option value="">All sections</option>
@@ -380,7 +380,7 @@
                         <option value="admin">Admins</option>
                     </select>
                     <select id="userSort" onchange="renderUsersTable()">
-                        <option value="course">Sort: Course → Section → Surname</option>
+                        <option value="course">Sort: Program → Section → Surname</option>
                         <option value="surname">Sort: Surname (A–Z)</option>
                         <option value="email">Sort: Email (A–Z)</option>
                     </select>
@@ -399,7 +399,7 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
-                                <th>Course</th>
+                                <th>Program</th>
                                 <th>Section</th>
                                 <th>Gender</th>
                                 <th>Age</th>
@@ -536,16 +536,16 @@
                         </div>
 
                         <div>
-                            <label for="acDepartment">Department <span class="req">*</span></label>
+                            <label for="acDepartment">Program <span class="req">*</span></label>
                             <select id="acDepartment" data-required data-label="Department" onchange="updateSectionOptions()">
-                                <option value="">Select department</option>
+                                <option value="">Select program</option>
                             </select>
                         </div>
 
                         <div class="student-only hidden">
                             <label for="acSection">Section <span class="req">*</span></label>
                             <select id="acSection" data-required data-label="Section">
-                                <option value="">Choose a department first</option>
+                                <option value="">Choose a program first</option>
                             </select>
                         </div>
 
@@ -661,7 +661,7 @@
                                 <code>first_name</code>*, <code>last_name</code>*, <code>email</code>*,
                                 <code>gender</code>* (Male / Female / Prefer not to say),
                                 <code>age</code>*, <code>role</code>* (student / faculty),
-                                <code>department</code>* (code, e.g. BSIT).
+                                <code>department</code>* (the program code, e.g. BSIT).
                                 Students also need <code>section</code>* and <code>student_id</code>*.
                                 Optional: <code>employee_id</code>, <code>contact_number</code>.
                             </span>
@@ -803,7 +803,7 @@
                             <input type="text" id="secName" placeholder="e.g. BSIT-A2" data-required data-label="Section name" autocomplete="off">
                         </div>
                         <div>
-                            <label for="secDepartment">Department <span class="req">*</span></label>
+                            <label for="secDepartment">Program <span class="req">*</span></label>
                             <select id="secDepartment" data-required data-label="Department"></select>
                         </div>
                     </div>
@@ -818,7 +818,7 @@
                     <div class="table-container">
                         <table>
                             <thead>
-                                <tr><th>Section</th><th>Department</th><th>Students</th><th>Home room</th><th>Actions</th></tr>
+                                <tr><th>Section</th><th>Program</th><th>Students</th><th>Home room</th><th>Actions</th></tr>
                             </thead>
                             <tbody id="sectionsTable"></tbody>
                         </table>
@@ -959,7 +959,7 @@
                 </strong>
 
                 <small id="facultyDepartment">
-                    Department
+                    Program
                 </small>
 
             </div>
@@ -1040,7 +1040,7 @@
                 </h2>
 
                 <p id="facultyTopDescription">
-                    Department overview
+                    Program overview
                 </p>
 
             </div>
@@ -1066,11 +1066,11 @@
             <div class="page-heading">
 
                 <h1 id="facultyDashboardTitle">
-                    Department Dashboard
+                    Program Dashboard
                 </h1>
 
                 <p>
-                    Overall information for your department.
+                    Overall information for your program.
                 </p>
 
             </div>
@@ -1087,7 +1087,7 @@
                     </strong>
 
                     <small>
-                        Department students
+                        Program students
                     </small>
 
                 </div>
@@ -1102,7 +1102,7 @@
                     </strong>
 
                     <small>
-                        Department sections
+                        Program sections
                     </small>
 
                 </div>
@@ -1117,7 +1117,7 @@
                     </strong>
 
                     <small>
-                        Department faculty
+                        Program faculty
                     </small>
 
                 </div>
@@ -1145,7 +1145,7 @@
                 <div class="panel">
 
                     <div class="panel-title">
-                        <h3>Department Sections</h3>
+                        <h3>Program Sections</h3>
                     </div>
 
                     <div id="facultySectionOverview"></div>
@@ -1180,7 +1180,7 @@
                 <h1>Sections</h1>
 
                 <p>
-                    Sections and class schedules for your department.
+                    Sections and class schedules for your program.
                 </p>
 
             </div>
@@ -1252,7 +1252,7 @@
                 <h1>Schedule</h1>
 
                 <p>
-                    View and adjust the department schedule.
+                    View and adjust the program schedule.
                 </p>
 
             </div>
@@ -1370,7 +1370,7 @@
                 <h1>Room Tagging</h1>
 
                 <p>
-                    Assign rooms to classes in your department.
+                    Assign rooms to classes in your program.
                 </p>
 
             </div>
@@ -1423,7 +1423,7 @@
                 <h1>Student Records</h1>
 
                 <p>
-                    Student records for your department.
+                    Student records for your program.
                 </p>
 
             </div>

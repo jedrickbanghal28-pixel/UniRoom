@@ -46,7 +46,7 @@ async function loadAccountFormOptions() {
         const previous = department.value;
 
         department.innerHTML =
-            '<option value="">Select department</option>';
+            '<option value="">Select program</option>';
 
         accountOptions.departments.forEach(function(d) {
             department.innerHTML +=
@@ -87,7 +87,7 @@ function updateSectionOptions() {
     });
 
     section.innerHTML = departmentId === ""
-        ? '<option value="">Choose a department first</option>'
+        ? '<option value="">Choose a program first</option>'
         : '<option value="">Select section</option>';
 
     sections.forEach(function(s) {
@@ -327,7 +327,7 @@ const BULK_COLUMNS = [
     { key: "gender",         label: "Gender",         required: true,  aliases: ["sex"] },
     { key: "age",            label: "Age",            required: true,  aliases: [] },
     { key: "role",           label: "Role",           required: true,  aliases: ["type", "account type"] },
-    { key: "department",     label: "Department",     required: true,  aliases: ["department code", "dept", "program", "course"] },
+    { key: "department",     label: "Program",        required: true,  aliases: ["department code", "dept", "program", "course"] },
     { key: "section",        label: "Section",        required: false, aliases: ["section name", "block"] },
     { key: "student_id",     label: "Student ID",     required: false, aliases: ["student no", "student number", "id number"] },
     { key: "employee_id",    label: "Employee ID",    required: false, aliases: ["employee no", "employee number", "faculty id"] },
@@ -612,7 +612,7 @@ function renderBulkPreview() {
 
     let html =
         '<div class="table-container"><table class="bulk-table"><thead><tr>' +
-        "<th>Row</th><th>Name</th><th>Email</th><th>Role</th><th>Department</th><th>Section</th><th>Status</th>" +
+        "<th>Row</th><th>Name</th><th>Email</th><th>Role</th><th>Program</th><th>Section</th><th>Status</th>" +
         "</tr></thead><tbody>";
 
     // Rows with problems first

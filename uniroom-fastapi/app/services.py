@@ -985,7 +985,7 @@ def notify_send(conn, data, query, token):
     section_name = _s(data, "section")
     kind = "transfer" if data.get("kind") == "transfer" else "announcement"
     title, body = _s(data, "title"), _s(data, "body")
-    errors = [{"field": f, "message": m} for f, v, m in (("program", program, "Course is required."),
+    errors = [{"field": f, "message": m} for f, v, m in (("program", program, "Program is required."),
                                                          ("title", title, "Title is required."),
                                                          ("body", body, "Message is required.")) if not v]
     if errors:
@@ -994,7 +994,7 @@ def notify_send(conn, data, query, token):
         raise ApiError(422, "The message is too long.")
     dept = one(conn, "SELECT id, code FROM departments WHERE upper(code) = %(c)s", {"c": program})
     if not dept:
-        raise ApiError(404, f'Course "{program}" does not exist.')
+        raise ApiError(404, f'Program "{program}" does not exist.')
     section_id = None
     if section_name:
         section_id = scalar(conn, "SELECT id FROM sections WHERE lower(name) = lower(%(n)s) AND department_id = %(d)s",
