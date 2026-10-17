@@ -1226,7 +1226,7 @@ function renderUsersTable() {
 
         // Group heading per course + section when sorted by course
         if (sort === "course") {
-            const group = (user.department || "No course") + (user.section ? " · " + user.section : "");
+            const group = (user.department || "No program") + (user.section ? " · " + user.section : "");
             if (group !== lastGroup) {
                 html += '<tr class="group-row"><td colspan="8">' + escapeHtml(group) + '</td></tr>';
                 lastGroup = group;

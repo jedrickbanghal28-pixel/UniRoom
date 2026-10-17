@@ -382,6 +382,9 @@ def admin_update_user(conn, data, query, token, user_id):
                                   "contact_number": account["contact_number"] or None, "id": user_id})
     except psycopg.Error as e:
         _db_error(e, "This email or student ID is already registered.")
+    # keep the linked faculty record (used in schedules) the same as the account
+    conn.execute("UPDATE faculty SET first_name=%(f)s, last_name=%(l)s, email=%(e)s WHERE user_id=%(id)s",
+                 {"f": account["first_name"], "l": account["last_name"], "e": account["email"], "id": user_id})
     return admin_get_user(conn, data, query, token, user_id) | {"message": "User updated successfully."}
 
 
