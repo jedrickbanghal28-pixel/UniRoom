@@ -359,57 +359,11 @@ const departments = {
 
 
 /* =====================================================
-   USERS
+   SIGNED-IN USER
 ===================================================== */
-
-let users = JSON.parse(
-    localStorage.getItem("uniroomUsers")
-) || [
-
-    {
-        name: "System Administrator",
-        email: "admin@uniroom.com",
-        password: "123456",
-        role: "admin",
-        department: "Administration",
-        status: "Active"
-    },
-
-    {
-        name: "IT Faculty",
-        email: "faculty.it@uniroom.com",
-        password: "123456",
-        role: "faculty",
-        department: "Information Technology",
-        status: "Active"
-    },
-
-    {
-        name: "MedTech Faculty",
-        email: "faculty.medtech@uniroom.com",
-        password: "123456",
-        role: "faculty",
-        department: "Medical Technology",
-        status: "Active"
-    }
-];
-
 
 let currentUser = null;
 
-
-/* =====================================================
-   SAVE USERS
-===================================================== */
-
-function saveUsers() {
-
-    localStorage.setItem(
-        "uniroomUsers",
-        JSON.stringify(users)
-    );
-
-}
 
 /* =====================================================
    LOGOUT
@@ -1072,7 +1026,7 @@ function showAdminPage(
             "Admin Dashboard",
 
         adminDepartments:
-            "Departments",
+            "Programs",
 
         adminUsers:
             "User Management",
@@ -1272,7 +1226,7 @@ function renderUsersTable() {
 
         // Group heading per course + section when sorted by course
         if (sort === "course") {
-            const group = (user.department || "No course") + (user.section ? " · " + user.section : "");
+            const group = (user.department || "No program") + (user.section ? " · " + user.section : "");
             if (group !== lastGroup) {
                 html += '<tr class="group-row"><td colspan="8">' + escapeHtml(group) + '</td></tr>';
                 lastGroup = group;
@@ -1543,7 +1497,7 @@ async function openDepartment(departmentId) {
         departmentStudents = result.students || [];
         const dept = result.department || {};
         document.getElementById("departmentStudentsTitle").textContent =
-            (dept.code || "Department") + " students" + (dept.name ? " – " + dept.name : "");
+            (dept.code || "Program") + " students" + (dept.name ? " – " + dept.name : "");
 
         const sectionSelect = document.getElementById("deptSectionFilter");
         const sections = uniqueSorted(departmentStudents.map(function(s) { return s.section; }));
@@ -1586,7 +1540,7 @@ function renderDepartmentStudents() {
 
     if (rows.length === 0) {
         table.innerHTML = '<tr><td colspan="4">' +
-            (departmentStudents.length === 0 ? "No students in this department yet." : "No students match.") +
+            (departmentStudents.length === 0 ? "No students in this program yet." : "No students match.") +
             '</td></tr>';
         return;
     }

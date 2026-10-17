@@ -1,12 +1,14 @@
 -- =====================================================================
 -- UNIROOM – demo faculty accounts (one for BSIT, one for BS MedTech)
 -- Run once in Supabase → SQL Editor (after 06_demo_accounts.sql).
--- Running it again resets the passwords and the demo classes.
+-- Running it again resets the demo classes.
 --
---   Username        Password   Name                 Teaches
---   demo.fac.bsit   Demo2026   Prof. Daniel Cruz    BSIT-A1  · ITE 298 Information Management
---   demo.fac.bsmt   Demo2026   Prof. Grace Lim      BSMT-A1/A2 · ITE 031 IT Laboratory
+--   Username        Name                 Teaches
+--   demo.fac.bsit   Prof. Daniel Cruz    BSIT-A1  · ITE 298 Information Management
+--   demo.fac.bsmt   Prof. Grace Lim      BSMT-A1/A2 · ITE 031 IT Laboratory
 --
+-- Passwords are random and are not written here. To sign in, change the
+-- email to a real inbox and use "Resend email" on the website.
 -- Each one gets a faculty record, a subject and two classes on Tuesday /
 -- Thursday. A class is only added when the room, the teacher and the
 -- section are free at that time (same conflict rule as the website).
@@ -23,8 +25,8 @@
 INSERT INTO users (first_name, last_name, employee_id, username, email, password_hash, role,
                    department_id, gender, age, must_change_password)
 SELECT d.first_name, d.last_name, d.employee_id, d.username, d.email,
-       extensions.crypt('Demo2026', extensions.gen_salt('bf')), 'faculty',
-       dep.id, d.gender, d.age, FALSE
+       extensions.crypt(encode(extensions.gen_random_bytes(12), 'hex'), extensions.gen_salt('bf')), 'faculty',
+       dep.id, d.gender, d.age, TRUE
 FROM (VALUES
         ('Daniel', 'Cruz', 'DEMO-FAC-IT', 'demo.fac.bsit', 'demo.fac.bsit@uniroom.demo', 'BSIT', 'Male',   35),
         ('Grace',  'Lim',  'DEMO-FAC-MT', 'demo.fac.bsmt', 'demo.fac.bsmt@uniroom.demo', 'BSMT', 'Female', 32)
@@ -35,7 +37,7 @@ ON CONFLICT (username) DO UPDATE
        first_name = EXCLUDED.first_name,
        last_name = EXCLUDED.last_name,
        department_id = EXCLUDED.department_id,
-       must_change_password = FALSE;
+       must_change_password = TRUE;
 
 -- 2) Faculty records (linked to the accounts)
 INSERT INTO faculty (first_name, last_name, email, user_id)

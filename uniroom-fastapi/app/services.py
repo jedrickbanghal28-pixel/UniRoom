@@ -15,6 +15,7 @@ from .core import (ApiError, all_rows, hash_password, make_token, one, password_
 
 REQUIRED_MSG = "Please complete the required fields marked with *."
 DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+CLASS_DAYS = DAYS[:6]          # classes run Monday to Saturday (same CHECK as the database)
 ROOM_STATUSES = ["Available", "Occupied", "Reserved", "Maintenance"]
 TIME_RE = re.compile(r"^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$")
 
@@ -361,7 +362,7 @@ def admin_update_user(conn, data, query, token, user_id):
         raise ApiError(404, "User not found.")
     if existing["role"] == "admin":
         raise ApiError(403, "Administrator accounts cannot be edited here.")
-    merged = {k: existing.get(k) for k in ("first_name", "last_name", "email", "gender", "age", "role",
+    merged = {k: existing.get(k) for k in ("first_name", "last_name", "middle_initial", "email", "gender", "age", "role",
                                            "department_id", "section_id", "student_id", "employee_id", "contact_number")}
     merged.update({k: v for k, v in data.items() if v is not None})
     lookup = acc.load_lookup(conn)
@@ -373,7 +374,7 @@ def admin_update_user(conn, data, query, token, user_id):
         raise ApiError(409, dups[0]["message"], errors=dups)
     try:
         conn.execute("""
-            UPDATE users SET first_name=%(first_name)s, last_name=%(last_name)s, email=%(email)s, gender=%(gender)s,
+            UPDATE users SET first_name=%(first_name)s, last_name=%(last_name)s, middle_initial=%(middle_initial)s, email=%(email)s, gender=%(gender)s,
                    age=%(age)s, role=%(role)s, department_id=%(department_id)s, section_id=%(section_id)s,
                    student_id=%(student_id)s, employee_id=%(employee_id)s, contact_number=%(contact_number)s
             WHERE id=%(id)s""", {**account, "student_id": account["student_id"] or None,
@@ -381,6 +382,10 @@ def admin_update_user(conn, data, query, token, user_id):
                                   "contact_number": account["contact_number"] or None, "id": user_id})
     except psycopg.Error as e:
         _db_error(e, "This email or student ID is already registered.")
+    # keep the linked faculty record (used in schedules) the same as the account
+    conn.execute("UPDATE faculty SET first_name=%(f)s, last_name=%(l)s, middle_initial=%(m)s, email=%(e)s WHERE user_id=%(id)s",
+                 {"f": account["first_name"], "l": account["last_name"], "m": account["middle_initial"],
+                  "e": account["email"], "id": user_id})
     return admin_get_user(conn, data, query, token, user_id) | {"message": "User updated successfully."}
 
 
@@ -752,7 +757,7 @@ def schedule_save(conn, data, query, token, schedule_id=None):
     if sec <= 0: errors.append({"field": "section_id", "message": "Section is required."})
     if sub <= 0: errors.append({"field": "subject_id", "message": "Subject is required."})
     if fac <= 0: errors.append({"field": "faculty_id", "message": "Faculty is required."})
-    if day not in DAYS: errors.append({"field": "day_of_week", "message": "Day is required."})
+    if day not in CLASS_DAYS: errors.append({"field": "day_of_week", "message": "Day must be Monday to Saturday."})
     if not TIME_RE.match(start): errors.append({"field": "start_time", "message": "Start time is required."})
     if not TIME_RE.match(end): errors.append({"field": "end_time", "message": "End time is required."})
     if room <= 0: errors.append({"field": "room_id", "message": "Room is required."})
@@ -978,13 +983,13 @@ def faculty_students(conn, data, query, token, user_id=None):
 
 # =================================================================== notifications
 def notify_send(conn, data, query, token):
-    tok = require_role(token, ["faculty", "admin"])
+    tok = require_role(token, ["faculty"])          # only faculty send notices (UC-04)
     program = _s(data, "program").upper()
     program = "BSMT" if program in ("BSMEDTECH", "MEDTECH") else program
     section_name = _s(data, "section")
     kind = "transfer" if data.get("kind") == "transfer" else "announcement"
     title, body = _s(data, "title"), _s(data, "body")
-    errors = [{"field": f, "message": m} for f, v, m in (("program", program, "Course is required."),
+    errors = [{"field": f, "message": m} for f, v, m in (("program", program, "Program is required."),
                                                          ("title", title, "Title is required."),
                                                          ("body", body, "Message is required.")) if not v]
     if errors:
@@ -993,7 +998,7 @@ def notify_send(conn, data, query, token):
         raise ApiError(422, "The message is too long.")
     dept = one(conn, "SELECT id, code FROM departments WHERE upper(code) = %(c)s", {"c": program})
     if not dept:
-        raise ApiError(404, f'Course "{program}" does not exist.')
+        raise ApiError(404, f'Program "{program}" does not exist.')
     section_id = None
     if section_name:
         section_id = scalar(conn, "SELECT id FROM sections WHERE lower(name) = lower(%(n)s) AND department_id = %(d)s",

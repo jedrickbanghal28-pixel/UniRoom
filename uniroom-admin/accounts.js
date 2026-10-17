@@ -46,7 +46,7 @@ async function loadAccountFormOptions() {
         const previous = department.value;
 
         department.innerHTML =
-            '<option value="">Select department</option>';
+            '<option value="">Select program</option>';
 
         accountOptions.departments.forEach(function(d) {
             department.innerHTML +=
@@ -87,7 +87,7 @@ function updateSectionOptions() {
     });
 
     section.innerHTML = departmentId === ""
-        ? '<option value="">Choose a department first</option>'
+        ? '<option value="">Choose a program first</option>'
         : '<option value="">Select section</option>';
 
     sections.forEach(function(s) {
@@ -144,6 +144,7 @@ function selectedPasswordMode(name) {
 const ACCOUNT_FIELD_IDS = {
     first_name: "acFirstName",
     last_name: "acLastName",
+    middle_initial: "acMiddleInitial",
     email: "acEmail",
     gender: "acGender",
     age: "acAge",
@@ -196,6 +197,7 @@ async function createAccount() {
     const payload = {
         first_name: value("acFirstName"),
         last_name: value("acLastName"),
+        middle_initial: value("acMiddleInitial"),
         email: email,
         gender: value("acGender"),
         age: value("acAge"),
@@ -323,11 +325,12 @@ function resetAccountForm(clearMessages) {
 const BULK_COLUMNS = [
     { key: "first_name",     label: "First Name",     required: true,  aliases: ["firstname", "given name"] },
     { key: "last_name",      label: "Last Name",      required: true,  aliases: ["lastname", "surname", "family name"] },
+    { key: "middle_initial", label: "Middle Initial", required: false, aliases: ["mi", "m.i.", "middle name", "middle"] },
     { key: "email",          label: "Email Address",  required: true,  aliases: ["email address", "e-mail", "gmail"] },
     { key: "gender",         label: "Gender",         required: true,  aliases: ["sex"] },
     { key: "age",            label: "Age",            required: true,  aliases: [] },
     { key: "role",           label: "Role",           required: true,  aliases: ["type", "account type"] },
-    { key: "department",     label: "Department",     required: true,  aliases: ["department code", "dept", "program", "course"] },
+    { key: "department",     label: "Program",        required: true,  aliases: ["department code", "dept", "program", "course"] },
     { key: "section",        label: "Section",        required: false, aliases: ["section name", "block"] },
     { key: "student_id",     label: "Student ID",     required: false, aliases: ["student no", "student number", "id number"] },
     { key: "employee_id",    label: "Employee ID",    required: false, aliases: ["employee no", "employee number", "faculty id"] },
@@ -373,8 +376,8 @@ function downloadBulkTemplate() {
 
     const lines = [
         BULK_COLUMNS.map(function(c) { return c.key; }).join(","),
-        ["Juan", "Dela Cruz", "juan.delacruz@gmail.com", "Male", "19", "student", deptCode, sectionName, "2026-0001", "", "09171234567"].join(","),
-        ["Maria", "Santos", "maria.santos@gmail.com", "Female", "34", "faculty", deptCode, "", "", "EMP-1001", "09181234567"].join(",")
+        ["Juan", "Dela Cruz", "P", "juan.delacruz@gmail.com", "Male", "19", "student", deptCode, sectionName, "2026-0001", "", "09171234567"].join(","),
+        ["Maria", "Santos", "L", "maria.santos@gmail.com", "Female", "34", "faculty", deptCode, "", "", "EMP-1001", "09181234567"].join(",")
     ];
 
     downloadText("uniroom_bulk_accounts_template.csv", lines.join("\r\n") + "\r\n");
@@ -612,7 +615,7 @@ function renderBulkPreview() {
 
     let html =
         '<div class="table-container"><table class="bulk-table"><thead><tr>' +
-        "<th>Row</th><th>Name</th><th>Email</th><th>Role</th><th>Department</th><th>Section</th><th>Status</th>" +
+        "<th>Row</th><th>Name</th><th>Email</th><th>Role</th><th>Program</th><th>Section</th><th>Status</th>" +
         "</tr></thead><tbody>";
 
     // Rows with problems first

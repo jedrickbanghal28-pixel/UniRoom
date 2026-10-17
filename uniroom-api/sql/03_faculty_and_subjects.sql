@@ -47,7 +47,7 @@ INSERT INTO subjects (code, name)
 SELECT v.code, v.name
 FROM (VALUES
     ('ITE 031', 'IT Laboratory'),
-    ('ITE 031', 'Data Structure and Algorithms'),
+    ('ITE 031', 'Data Structures and Algorithms'),
     ('ITE 298', 'Information Management')
 ) AS v(code, name)
 WHERE NOT EXISTS (SELECT 1 FROM subjects s WHERE s.code = v.code AND s.name = v.name);
@@ -67,12 +67,13 @@ WHERE NOT EXISTS (
 
 
 -- ---------- 6. Faculty login accounts ----------
--- Temporary password: UniRoom2026  (they must change it at first login)
+-- Each account gets a random password that nobody knows. Open the account on
+-- the website and use "Resend email" to send the faculty member their login.
 -- ⚠ Change these emails to the real ones before running.
 INSERT INTO users (first_name, last_name, username, email, password_hash, role,
                    department_id, gender, must_change_password)
 SELECT v.first_name, v.last_name, v.username, v.email,
-       extensions.crypt('UniRoom2026', extensions.gen_salt('bf')),
+       extensions.crypt(encode(extensions.gen_random_bytes(12), 'hex'), extensions.gen_salt('bf')),
        'faculty', d.id, v.gender, TRUE
 FROM (VALUES
     ('Farah Diva',           'Alvarado',    'falvarado',    'f.alvarado@university.edu',    'Female'),

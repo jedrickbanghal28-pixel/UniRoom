@@ -31,7 +31,7 @@ public final class CrashLog {
             StringWriter sw = new StringWriter();
             t.printStackTrace(new PrintWriter(sw));
             String when = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date());
-            String text = "UniRoom 2.4 · Android " + Build.VERSION.RELEASE + " · " + Build.MANUFACTURER + " " + Build.MODEL
+            String text = "UniRoom 2.5 · Android " + Build.VERSION.RELEASE + " · " + Build.MANUFACTURER + " " + Build.MODEL
                     + "\n" + when + (fatal ? " (app closed)" : "") + "\n\n" + sw;
             if (text.length() > 6000) text = text.substring(0, 6000);
             // commit(): the app may be closing, so write it now

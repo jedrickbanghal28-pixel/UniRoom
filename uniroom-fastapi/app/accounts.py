@@ -117,7 +117,8 @@ def validate_account(raw, lookup):
     get = lambda k: str(raw.get(k) if raw.get(k) is not None else "").strip()
     err = lambda field, msg: errors.append({"field": field, "message": msg})
 
-    a = {"first_name": get("first_name"), "last_name": get("last_name"), "email": get("email").lower(),
+    a = {"first_name": get("first_name"), "last_name": get("last_name"),
+         "middle_initial": get("middle_initial").replace(".", "").strip().upper() or None, "email": get("email").lower(),
          "gender": None, "age": None, "role": get("role").lower(), "department_id": None, "section_id": None,
          "student_id": get("student_id"), "employee_id": get("employee_id"), "contact_number": get("contact_number")}
 
@@ -125,6 +126,8 @@ def validate_account(raw, lookup):
         err("first_name", "First name is required.")
     if not a["last_name"]:
         err("last_name", "Last name is required.")
+    if a["middle_initial"] and (len(a["middle_initial"]) > 3 or not a["middle_initial"].replace(" ", "").isalpha()):
+        err("middle_initial", "Middle initial must be 1 to 3 letters.")
     if not a["email"]:
         err("email", "Email address is required.")
     elif not EMAIL_RE.match(a["email"]):
@@ -217,10 +220,10 @@ def create_account(conn, a, mode, admin_id):
         temporary = random_password(10) if mode == "temporary" else None
         pw_hash = hash_password(conn, temporary or secrets.token_hex(24))
         user_id = scalar(conn, """
-            INSERT INTO users (first_name, last_name, student_id, username, email, contact_number,
+            INSERT INTO users (first_name, last_name, middle_initial, student_id, username, email, contact_number,
                                password_hash, role, section_id, gender, age, department_id,
                                employee_id, must_change_password, created_by)
-            VALUES (%(first_name)s, %(last_name)s, %(student_id)s, %(username)s, %(email)s, %(contact_number)s,
+            VALUES (%(first_name)s, %(last_name)s, %(middle_initial)s, %(student_id)s, %(username)s, %(email)s, %(contact_number)s,
                     %(password_hash)s, %(role)s, %(section_id)s, %(gender)s, %(age)s, %(department_id)s,
                     %(employee_id)s, TRUE, %(created_by)s)
             RETURNING id""", {
@@ -230,8 +233,9 @@ def create_account(conn, a, mode, admin_id):
         if a["role"] == "faculty":
             try:
                 with conn.transaction():          # savepoint: never block the account itself
-                    conn.execute("INSERT INTO faculty (first_name, last_name, user_id, email) VALUES (%(f)s, %(l)s, %(u)s, %(e)s)",
-                                 {"f": a["first_name"], "l": a["last_name"], "u": user_id, "e": a["email"]})
+                    conn.execute("INSERT INTO faculty (first_name, last_name, middle_initial, user_id, email) "
+                                 "VALUES (%(f)s, %(l)s, %(m)s, %(u)s, %(e)s)",
+                                 {"f": a["first_name"], "l": a["last_name"], "m": a["middle_initial"], "u": user_id, "e": a["email"]})
             except Exception:
                 pass
         setup_link = new_setup_link(conn, user_id) if mode != "temporary" else None

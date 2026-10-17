@@ -108,7 +108,7 @@ async function loadSetupDepartments() {
     try {
         const r = await setupRequest("departments");
         const previous = select.value;
-        select.innerHTML = '<option value="">Select department</option>' +
+        select.innerHTML = '<option value="">Select program</option>' +
             (r.result.departments || []).map(function(d) {
                 return '<option value="' + d.id + '">' + escapeHtml(d.code + (d.name ? " – " + d.name : "")) + "</option>";
             }).join("");

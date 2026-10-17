@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS schedules (
     subject_id   INTEGER NOT NULL REFERENCES subjects(id),
     room_id      INTEGER NOT NULL REFERENCES rooms(id),
     faculty_id   INTEGER REFERENCES faculty(id),
-    day_of_week  TEXT NOT NULL,            -- Monday … Friday
+    day_of_week  TEXT NOT NULL,            -- Monday … Saturday (CHECK added in 10_review_fixes.sql)
     start_time   TIME NOT NULL,
     end_time     TIME NOT NULL
 );
