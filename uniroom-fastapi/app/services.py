@@ -979,7 +979,7 @@ def faculty_students(conn, data, query, token, user_id=None):
 
 # =================================================================== notifications
 def notify_send(conn, data, query, token):
-    tok = require_role(token, ["faculty", "admin"])
+    tok = require_role(token, ["faculty"])          # only faculty send notices (UC-04)
     program = _s(data, "program").upper()
     program = "BSMT" if program in ("BSMEDTECH", "MEDTECH") else program
     section_name = _s(data, "section")
