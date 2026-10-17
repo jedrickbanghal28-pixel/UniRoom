@@ -92,10 +92,10 @@ async def unexpected_handler(request: Request, exc: Exception):
     return JSONResponse(status_code=500, content={"success": False, "message": "Server error."})
 
 
-def run(fn, *args, data=None, query=None, token=None, **kw):
+def run(fn, *args, data=None, query=None, token=None, status=200, **kw):
+    """status: 201 for routes that create a record, 200 for everything else."""
     with connect() as conn:
         result = fn(conn, data or {}, query or {}, token, *args, **kw)
-    status = 200
     return JSONResponse(status_code=status, content=jsonable_encoder(result))
 
 
@@ -198,7 +198,7 @@ class ScheduleIn(Model):
     subject_id: int
     faculty_id: int
     room_id: int
-    day_of_week: Literal["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    day_of_week: Literal["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     start_time: str = Field(..., examples=["08:00"])
     end_time: str = Field(..., examples=["10:00"])
 
@@ -290,9 +290,9 @@ def list_users(role: Optional[str] = None, department: Optional[str] = Query(Non
     return run(svc.admin_users, query={k: v for k, v in q.items() if v}, token=token)
 
 
-@app.post("/api/admin/users", tags=["users"], summary="Create User", status_code=200)
+@app.post("/api/admin/users", tags=["users"], summary="Create User", status_code=201)
 def create_user(body: UserIn, token=Token):
-    return run(svc.admin_create_user, data=body_of(body), token=token)
+    return run(svc.admin_create_user, data=body_of(body), token=token, status=201)
 
 
 @app.post("/api/admin/users/bulk", tags=["users"], summary="Bulk Create Users")
@@ -337,9 +337,9 @@ def list_departments(token=Token):
     return run(svc.departments_list, token=token)
 
 
-@app.post("/api/departments", tags=["departments"], summary="Create Department")
+@app.post("/api/departments", tags=["departments"], summary="Create Department", status_code=201)
 def create_department(body: DepartmentIn, token=Token):
-    return run(svc.department_save, data=body_of(body), token=token)
+    return run(svc.department_save, data=body_of(body), token=token, status=201)
 
 
 @app.get("/api/departments/{department_id}", tags=["departments"], summary="Get Department")
@@ -368,9 +368,9 @@ def list_sections(department_id: Optional[int] = None, token=Token):
     return run(svc.sections_list, query={"department_id": department_id} if department_id else {}, token=token)
 
 
-@app.post("/api/sections", tags=["sections"], summary="Create Section")
+@app.post("/api/sections", tags=["sections"], summary="Create Section", status_code=201)
 def create_section(body: SectionIn, token=Token):
-    return run(svc.section_save, data=body_of(body), token=token)
+    return run(svc.section_save, data=body_of(body), token=token, status=201)
 
 
 @app.get("/api/sections/{section_id}", tags=["sections"], summary="Get Section")
@@ -399,9 +399,9 @@ def rooms_today(day: Optional[str] = Query(None, examples=["Monday"], descriptio
     return run(svc.rooms_today, query={"day": day} if day else {}, token=token)
 
 
-@app.post("/api/rooms", tags=["rooms"], summary="Create Room")
+@app.post("/api/rooms", tags=["rooms"], summary="Create Room", status_code=201)
 def create_room(body: RoomIn, token=Token):
-    return run(svc.room_save, data=body_of(body), token=token)
+    return run(svc.room_save, data=body_of(body), token=token, status=201)
 
 
 @app.get("/api/rooms/{room_id}", tags=["rooms"], summary="Get Room")
@@ -425,9 +425,9 @@ def list_subjects(token=Token):
     return run(svc.subjects_list, token=token)
 
 
-@app.post("/api/subjects", tags=["subjects"], summary="Create Subject")
+@app.post("/api/subjects", tags=["subjects"], summary="Create Subject", status_code=201)
 def create_subject(body: SubjectIn, token=Token):
-    return run(svc.subject_save, data=body_of(body), token=token)
+    return run(svc.subject_save, data=body_of(body), token=token, status=201)
 
 
 @app.get("/api/subjects/{subject_id}", tags=["subjects"], summary="Get Subject")
@@ -451,9 +451,9 @@ def list_faculty(token=Token):
     return run(svc.faculty_list, token=token)
 
 
-@app.post("/api/faculty", tags=["faculty"], summary="Create Faculty")
+@app.post("/api/faculty", tags=["faculty"], summary="Create Faculty", status_code=201)
 def create_faculty(body: FacultyIn, token=Token):
-    return run(svc.faculty_save, data=body_of(body), token=token)
+    return run(svc.faculty_save, data=body_of(body), token=token, status=201)
 
 
 @app.get("/api/faculty/{faculty_id}", tags=["faculty"], summary="Get Faculty")
@@ -479,9 +479,9 @@ def list_faculty_subjects(faculty_id: Optional[int] = None, subject_id: Optional
     return run(svc.faculty_subjects_list, query={k: v for k, v in q.items() if v}, token=token)
 
 
-@app.post("/api/faculty-subjects", tags=["faculty_subjects"], summary="Assign Subject to Faculty")
+@app.post("/api/faculty-subjects", tags=["faculty_subjects"], summary="Assign Subject to Faculty", status_code=201)
 def create_faculty_subject(body: FacultySubjectIn, token=Token):
-    return run(svc.faculty_subject_create, data=body_of(body), token=token)
+    return run(svc.faculty_subject_create, data=body_of(body), token=token, status=201)
 
 
 @app.delete("/api/faculty-subjects/{faculty_id}/{subject_id}/{department_id}", tags=["faculty_subjects"],
@@ -506,9 +506,9 @@ def schedule_options(token=Token):
     return run(svc.schedule_options, token=token)
 
 
-@app.post("/api/schedules", tags=["schedules"], summary="Create Schedule (checks conflicts)")
+@app.post("/api/schedules", tags=["schedules"], summary="Create Schedule (checks conflicts)", status_code=201)
 def create_schedule(body: ScheduleIn, token=Token):
-    return run(svc.schedule_save, data=body_of(body), token=token)
+    return run(svc.schedule_save, data=body_of(body), token=token, status=201)
 
 
 @app.get("/api/schedules/{schedule_id}", tags=["schedules"], summary="Get Schedule")
@@ -532,10 +532,10 @@ def list_section_rooms(token=Token):
     return run(svc.section_rooms_list, token=token)
 
 
-@app.post("/api/section-rooms", tags=["section_rooms"], summary="Create Home Room")
+@app.post("/api/section-rooms", tags=["section_rooms"], summary="Create Home Room", status_code=201)
 def create_section_room(body: SectionRoomIn, token=Token):
     data = body_of(body)
-    return run(svc.assign_room, int(data["section_id"]), data=data, token=token)
+    return run(svc.assign_room, int(data["section_id"]), data=data, token=token, status=201)
 
 
 @app.get("/api/section-rooms/{section_id}", tags=["section_rooms"], summary="Get Home Room")
@@ -602,9 +602,9 @@ def faculty_students(user_id: int = Path(..., ge=1), token=Token):
 
 
 # ------------------------------------------------------------------ notifications
-@app.post("/api/notifications", tags=["notifications"], summary="Send Notification (faculty)")
+@app.post("/api/notifications", tags=["notifications"], summary="Send Notification (faculty)", status_code=201)
 def send_notification(body: NotificationIn, token=Token):
-    return run(svc.notify_send, data=body_of(body), token=token)
+    return run(svc.notify_send, data=body_of(body), token=token, status=201)
 
 
 @app.get("/api/notifications", tags=["notifications"], summary="My Notifications (student)")

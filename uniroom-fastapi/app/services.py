@@ -15,6 +15,7 @@ from .core import (ApiError, all_rows, hash_password, make_token, one, password_
 
 REQUIRED_MSG = "Please complete the required fields marked with *."
 DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+CLASS_DAYS = DAYS[:6]          # classes run Monday to Saturday (same CHECK as the database)
 ROOM_STATUSES = ["Available", "Occupied", "Reserved", "Maintenance"]
 TIME_RE = re.compile(r"^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$")
 
@@ -752,7 +753,7 @@ def schedule_save(conn, data, query, token, schedule_id=None):
     if sec <= 0: errors.append({"field": "section_id", "message": "Section is required."})
     if sub <= 0: errors.append({"field": "subject_id", "message": "Subject is required."})
     if fac <= 0: errors.append({"field": "faculty_id", "message": "Faculty is required."})
-    if day not in DAYS: errors.append({"field": "day_of_week", "message": "Day is required."})
+    if day not in CLASS_DAYS: errors.append({"field": "day_of_week", "message": "Day must be Monday to Saturday."})
     if not TIME_RE.match(start): errors.append({"field": "start_time", "message": "Start time is required."})
     if not TIME_RE.match(end): errors.append({"field": "end_time", "message": "End time is required."})
     if room <= 0: errors.append({"field": "room_id", "message": "Room is required."})

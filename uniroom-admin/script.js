@@ -359,57 +359,11 @@ const departments = {
 
 
 /* =====================================================
-   USERS
+   SIGNED-IN USER
 ===================================================== */
-
-let users = JSON.parse(
-    localStorage.getItem("uniroomUsers")
-) || [
-
-    {
-        name: "System Administrator",
-        email: "admin@uniroom.com",
-        password: "123456",
-        role: "admin",
-        department: "Administration",
-        status: "Active"
-    },
-
-    {
-        name: "IT Faculty",
-        email: "faculty.it@uniroom.com",
-        password: "123456",
-        role: "faculty",
-        department: "Information Technology",
-        status: "Active"
-    },
-
-    {
-        name: "MedTech Faculty",
-        email: "faculty.medtech@uniroom.com",
-        password: "123456",
-        role: "faculty",
-        department: "Medical Technology",
-        status: "Active"
-    }
-];
-
 
 let currentUser = null;
 
-
-/* =====================================================
-   SAVE USERS
-===================================================== */
-
-function saveUsers() {
-
-    localStorage.setItem(
-        "uniroomUsers",
-        JSON.stringify(users)
-    );
-
-}
 
 /* =====================================================
    LOGOUT

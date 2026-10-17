@@ -1,16 +1,18 @@
 -- =====================================================================
 -- UNIROOM – demo student accounts (for the class demo / defense)
--- Run once in Supabase → SQL Editor. Running it again just resets the
--- passwords. They are real accounts in the users table, so they work in
--- the app exactly like accounts the admin creates (schedule, rooms,
--- notifications), but they skip the "change temporary password" step.
+-- Run once in Supabase → SQL Editor. Running it again gives them new
+-- random passwords. They are real accounts in the users table, so they
+-- work in the app exactly like accounts the admin creates (schedule, rooms,
+-- notifications), and they must change their password at the first sign-in.
 --
---   Username     Password   Name              Program / section
---   demo.bsit1   Demo2026   Juan Dela Cruz    BSIT · BSIT-A1
---   demo.bsit2   Demo2026   Bea Santos        BSIT · BSIT-A1
---   demo.bsmt1   Demo2026   Andrea Reyes      BSMT · BSMT-A1
---   demo.bsmt2   Demo2026   Paolo Garcia      BSMT · BSMT-A2
+--   Username     Name              Program / section
+--   demo.bsit1   Juan Dela Cruz    BSIT · BSIT-A1
+--   demo.bsit2   Bea Santos        BSIT · BSIT-A1
+--   demo.bsmt1   Andrea Reyes      BSMT · BSMT-A1
+--   demo.bsmt2   Paolo Garcia      BSMT · BSMT-A2
 --
+-- Passwords are random and are not written here. To sign in, change the
+-- email to a real inbox and use "Resend email" on the website.
 -- Faculty accounts are not changed.
 -- To remove them later:  DELETE FROM users WHERE username LIKE 'demo.%';
 -- =====================================================================
@@ -18,8 +20,8 @@
 INSERT INTO users (first_name, last_name, student_id, username, email, password_hash, role,
                    section_id, department_id, gender, age, must_change_password)
 SELECT d.first_name, d.last_name, d.student_id, d.username, d.email,
-       extensions.crypt('Demo2026', extensions.gen_salt('bf')), 'student',
-       s.id, s.department_id, d.gender, d.age, FALSE
+       extensions.crypt(encode(extensions.gen_random_bytes(12), 'hex'), extensions.gen_salt('bf')), 'student',
+       s.id, s.department_id, d.gender, d.age, TRUE
 FROM (VALUES
         ('Juan',    'Dela Cruz', 'DEMO-IT-01', 'demo.bsit1', 'demo.bsit1@uniroom.demo', 'BSIT', 'BSIT-A1', 'Male',   19),
         ('Bea',     'Santos',    'DEMO-IT-02', 'demo.bsit2', 'demo.bsit2@uniroom.demo', 'BSIT', 'BSIT-A1', 'Female', 20),
@@ -37,7 +39,7 @@ ON CONFLICT (username) DO UPDATE
    SET password_hash = EXCLUDED.password_hash,
        first_name = EXCLUDED.first_name,
        last_name = EXCLUDED.last_name,
-       must_change_password = FALSE,
+       must_change_password = TRUE,
        section_id = EXCLUDED.section_id,
        department_id = EXCLUDED.department_id;
 
